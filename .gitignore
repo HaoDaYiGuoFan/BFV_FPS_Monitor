@@ -1,0 +1,45 @@
+# ============================================================
+# BFV FPS Monitor · .gitignore
+# ============================================================
+
+# ---- .NET / C# 构建输出 ----
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# ---- Visual Studio ----
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ---- 发布 / 打包产物 ----
+publish/
+*.zip
+*.7z
+*.rar
+GameMonitor_*/
+
+# ---- 运行时生成（程序运行后动态产出，不应入库） ----
+settings.json
+sessions/
+store_profile/
+*.csv
+engine.log
+engine.log.1
+*.err.txt
+*_err.txt
+
+# ---- 备份 / 临时文件 ----
+*.bak
+*~
+*.tmp
+Thumbs.db
+Desktop.ini
+
+# ---- OS / 编辑器 ----
+.DS_Store

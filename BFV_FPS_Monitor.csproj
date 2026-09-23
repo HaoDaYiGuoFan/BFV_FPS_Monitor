@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>BFV_FPS_Monitor</RootNamespace>
+    <AssemblyName>BFV_FPS_Monitor</AssemblyName>
+    <VersionBase>1.0.0</VersionBase>
+    <BuildCounterFile>$(MSBuildProjectDirectory)\version_build.txt</BuildCounterFile>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Description>Game Monitor - 通用游戏硬件监控（PresentMon + LibreHardwareMonitor）</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PresentMon.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="app.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <Resource Include="logo.png" />
+  </ItemGroup>
+
+  <!-- 每次编译构建号 +1：Version = 1.0.0.N（N 从 version_build.txt 读取并写回） -->
+  <Target Name="BumpBuildNumber" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+    <ReadLinesFromFile File="$(BuildCounterFile)" Condition="Exists('$(BuildCounterFile)')">
+      <Output TaskParameter="Lines" PropertyName="CurrentBuildNum" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <CurrentBuildNum>$([System.String]::Copy('$(CurrentBuildNum)').Trim())</CurrentBuildNum>
+      <CurrentBuildNum Condition="'$(CurrentBuildNum)' == ''">0</CurrentBuildNum>
+      <NewBuildNum>$([MSBuild]::Add($(CurrentBuildNum), 1))</NewBuildNum>
+      <Version>$(VersionBase).$(NewBuildNum)</Version>
+      <FileVersion>$(VersionBase).$(NewBuildNum)</FileVersion>
+      <InformationalVersion>$(VersionBase).$(NewBuildNum)</InformationalVersion>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(BuildCounterFile)" Lines="$(NewBuildNum)" Overwrite="true" Encoding="ASCII" />
+    <Message Importance="high" Text="Build version: $(Version)" />
+  </Target>
+
+</Project>

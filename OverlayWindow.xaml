@@ -1,0 +1,76 @@
+<Window x:Class="BFV_FPS_Monitor.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BFV Overlay"
+        WindowStyle="None" ResizeMode="NoResize"
+        AllowsTransparency="True" Background="Transparent"
+        Topmost="True" ShowInTaskbar="False" ShowActivated="False"
+        SizeToContent="WidthAndHeight"
+        FontFamily="Segoe UI, Microsoft YaHei UI">
+
+    <Window.Resources>
+        <Style x:Key="Seg" TargetType="Border">
+            <Setter Property="Background" Value="#E6101418"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Padding" Value="12,6"/>
+        </Style>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8B97A8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Val" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#3DDC84"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="7,0,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Orientation="Horizontal" Margin="2" Background="Transparent"
+                MouseLeftButtonDown="Root_MouseLeftButtonDown">
+        <!-- FPS -->
+        <Border x:Name="SegFps" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="FPS" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="FpsVal" Text="--" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+        <!-- CPU -->
+        <Border x:Name="SegCpuL" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="CPU" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="CpuLoadVal" Text="--%" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+        <Border x:Name="SegCpuT" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="CPU" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="CpuTempVal" Text="--°C" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+        <!-- GPU -->
+        <Border x:Name="SegGpuL" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="GPU" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="GpuLoadVal" Text="--%" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+        <Border x:Name="SegGpuT" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="GPU" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="GpuTempVal" Text="--°C" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+        <!-- 网络 -->
+        <Border x:Name="SegNet" Style="{StaticResource Seg}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="NET" Style="{StaticResource Lbl}"/>
+                <TextBlock x:Name="NetVal" Text="--" Style="{StaticResource Val}"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

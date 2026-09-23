@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFV FPS Monitor · 部署与使用指南</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --ink: #e8ebf0;
+    --ink-dim: #9aa3af;
+    --hairline: rgba(255,255,255,.09);
+    --accent: #4da3ff;
+    --warn: #ffb454;
+    --panel: #14171d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    font-family: "Microsoft YaHei UI", "PingFang SC", sans-serif;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas { max-width: 1140px; margin: 0 auto; padding: 56px 32px 88px; }
+  .measure { max-width: 72ch; }
+
+  /* ===== metadata ===== */
+  .meta-row {
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: .04em;
+    color: var(--ink-dim);
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 14px;
+  }
+  .meta-row b { color: var(--ink); font-weight: 500; }
+
+  h1 {
+    font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+    font-size: 44px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 34px 0 10px;
+  }
+  h1 .thin { color: var(--ink-dim); font-weight: 400; }
+  .lede {
+    font-size: 17px;
+    color: var(--ink-dim);
+    max-width: 62ch;
+    margin-bottom: 44px;
+  }
+  .lede em { color: var(--accent); font-style: normal; }
+
+  h2 {
+    font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    margin: 56px 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  h2 .folio {
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-dim);
+    letter-spacing: .08em;
+  }
+  h2 + p { margin-top: 10px; }
+  .rule { border: 0; border-top: 1px solid var(--hairline); margin: 12px 0 22px; }
+
+  p { margin: 12px 0; }
+  p.dim { color: var(--ink-dim); }
+
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 13px;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    padding: 1px 6px;
+    border-radius: 2px;
+    word-break: break-all;
+  }
+  .path { padding: 2px 8px; }
+
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-left: 2px solid var(--accent);
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 14px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  pre .c { color: var(--ink-dim); }
+
+  /* ===== tables ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0 8px;
+    font-size: 13.5px;
+  }
+  th {
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--hairline);
+    vertical-align: top;
+  }
+  td.k { font-family: Consolas, monospace; font-size: 12.5px; color: var(--accent); white-space: nowrap; }
+  td .sub { display: block; font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+
+  /* ===== svg ===== */
+  figure { margin: 26px 0 8px; }
+  figcaption {
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: .06em;
+    margin-top: 10px;
+  }
+
+  /* ===== steps ===== */
+  ol.steps { list-style: none; counter-reset: step; margin: 18px 0; }
+  ol.steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 18px 46px;
+  }
+  ol.steps li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 0; top: 1px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    color: var(--accent);
+    border: 1px solid var(--hairline);
+    padding: 2px 7px;
+  }
+  ol.steps li b { font-weight: 550; }
+  ol.steps li p { margin: 4px 0 0; color: var(--ink-dim); font-size: 13.5px; }
+
+  /* ===== notes ===== */
+  .note {
+    border: 1px solid var(--hairline);
+    border-left: 2px solid var(--warn);
+    padding: 12px 16px;
+    margin: 18px 0;
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    max-width: 72ch;
+  }
+  .note b { color: var(--ink); font-weight: 550; }
+
+  .footer {
+    margin-top: 72px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 16px;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--ink-dim);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <div class="meta-row">
+    <span>DOC <b>DEPLOY-GUIDE</b></span>
+    <span>VER <b>1.1.0-wpf</b></span>
+    <span>TARGET <b>net10.0-windows</b></span>
+    <span>DATE <b>2026-09-14</b></span>
+    <span>MODE <b>进程外捕获 · 无注入</b></span>
+  </div>
+
+  <h1>BFV FPS Monitor<br><span class="thin">WPF 监控面板 · 部署与使用</span></h1>
+  <p class="lede">战地 5 实时性能面板：帧率 / 1% Low / CPU·GPU 温度与占用 / 显存 / 内存 / 网络速率。
+  基于 <em>PresentMon 进程外帧捕获</em> 与 <em>LibreHardwareMonitor 传感器读取</em>，不注入游戏进程，规避 EAC 风险。</p>
+
+  <!-- ================= 架构 ================= -->
+  <h2>架构总览 <span class="folio">SEC 01 / ARCHITECTURE</span></h2>
+  <hr class="rule">
+  <p class="dim">数据只有一条正向流：两个独立采集源 → 引擎汇聚 → UI 与 CSV 双出口。帧路径（PresentMon 子进程 stdout）与硬件路径（WMI/传感器轮询）互不阻塞，任一源失败只降级显示 N/A，不影响另一路。</p>
+
+  <figure>
+    <svg viewBox="0 0 1060 330" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Consolas, monospace">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6" fill="none" stroke="#9aa3af" stroke-width="1.2"/>
+        </marker>
+      </defs>
+      <!-- 采集源层 -->
+      <rect x="20" y="30" width="200" height="64" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <text x="120" y="56" fill="#e8ebf0" font-size="13" text-anchor="middle">bfv.exe（战地5 · D3D12）</text>
+      <text x="120" y="76" fill="#9aa3af" font-size="10.5" text-anchor="middle">被监控目标 · 1s 轮询启停</text>
+
+      <rect x="20" y="230" width="200" height="64" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <text x="120" y="256" fill="#e8ebf0" font-size="13" text-anchor="middle">硬件传感器</text>
+      <text x="120" y="276" fill="#9aa3af" font-size="10.5" text-anchor="middle">LibreHardwareMonitor 0.9.6</text>
+
+      <!-- 中间层 -->
+      <rect x="330" y="30" width="220" height="64" fill="none" stroke="#4da3ff" stroke-width="1"/>
+      <text x="440" y="56" fill="#4da3ff" font-size="13" text-anchor="middle">PresentMon 1.10.0</text>
+      <text x="440" y="76" fill="#9aa3af" font-size="10.5" text-anchor="middle">进程外 ETW 捕获 · stdout 输出</text>
+
+      <rect x="330" y="230" width="220" height="64" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <text x="440" y="250" fill="#e8ebf0" font-size="13" text-anchor="middle">性能计数器 + 网卡差分</text>
+      <text x="440" y="270" fill="#9aa3af" font-size="10.5" text-anchor="middle">CPU 占用 · 上下行速率 · 1s</text>
+
+      <!-- 引擎 -->
+      <rect x="660" y="118" width="200" height="94" fill="none" stroke="#4da3ff" stroke-width="1.4"/>
+      <text x="760" y="146" fill="#e8ebf0" font-size="13.5" text-anchor="middle">MonitorEngine</text>
+      <text x="760" y="166" fill="#9aa3af" font-size="10.5" text-anchor="middle">帧解析 · 1000 帧滑动窗口</text>
+      <text x="760" y="184" fill="#9aa3af" font-size="10.5" text-anchor="middle">Avg / 1% Low / 0.1% Low</text>
+      <text x="760" y="202" fill="#9aa3af" font-size="10.5" text-anchor="middle">Snapshot 原子交换</text>
+
+      <!-- 出口 -->
+      <rect x="920" y="70" width="120" height="52" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <text x="980" y="92" fill="#e8ebf0" font-size="12.5" text-anchor="middle">WPF 面板</text>
+      <text x="980" y="110" fill="#9aa3af" font-size="10.5" text-anchor="middle">150ms 刷新</text>
+
+      <rect x="920" y="210" width="120" height="52" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+      <text x="980" y="232" fill="#e8ebf0" font-size="12.5" text-anchor="middle">CSV 日志</text>
+      <text x="980" y="250" fill="#9aa3af" font-size="10.5" text-anchor="middle">每帧追加 · AutoFlush</text>
+
+      <!-- arrows -->
+      <line x1="220" y1="62" x2="326" y2="62" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="550" y1="62" x2="716" y2="114" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="220" y1="262" x2="326" y2="262" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="550" y1="262" x2="716" y2="216" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="860" y1="140" x2="916" y2="100" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+      <line x1="860" y1="190" x2="916" y2="232" stroke="#9aa3af" stroke-width="1.2" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption>FIG 01 — 采集管线：帧路径（上）与硬件/网络路径（下）在引擎汇聚，UI 与 CSV 双出口</figcaption>
+  </figure>
+
+  <!-- ================= 面板说明 ================= -->
+  <h2>面板内容 <span class="folio">SEC 02 / UI</span></h2>
+  <hr class="rule">
+  <p class="dim">深色单窗布局，参考游戏加加的信息分区：顶部状态徽章，中部三张主卡（GPU / CPU / FPS），下部帧率统计与网络速率。</p>
+
+  <table>
+    <tr><th style="width:16%">区域</th><th style="width:30%">指标</th><th>来源与说明</th></tr>
+    <tr><td class="k">顶栏徽章</td><td>游戏状态 / PresentMon 状态</td><td>绿点 = 运行中并显示 PID；灰点 = 待机。每秒随进程轮询刷新</td></tr>
+    <tr><td class="k" rowspan="4">GPU 卡</td><td>核心温度 <span class="sub">大字，≥85°C 红 / ≥70°C 橙</span></td><td rowspan="4">LibreHardwareMonitor GPU 传感器（NVIDIA / AMD / Intel）；占用条超 92% 变红。温度或占用读不到时显示 N/A，不影响其他项</td></tr>
+    <tr><td>GPU 占用 <span class="sub">进度条 + 百分比</span></td></tr>
+    <tr><td>显存 <span class="sub">已用 / 总量，>90% 红</span></td></tr>
+    <tr><td>温度告警色阶</td></tr>
+    <tr><td class="k" rowspan="3">CPU 卡</td><td>包温度 <span class="sub">Package / CCD1 优先</span></td><td rowspan="3">温度/频率取自 CPU 传感器；占用取自 Windows PerformanceCounter（比 WMI 更稳）；内存用量在传感器缺失时由 GlobalMemoryStatusEx 兜底</td></tr>
+    <tr><td>CPU 占用 <span class="sub">进度条 + 百分比</span></td></tr>
+    <tr><td>内存 <span class="sub">已用 / 总量 GB</span></td></tr>
+    <tr><td class="k">FPS 卡</td><td>瞬时 FPS / 帧时间 / 窗口帧数</td><td>PresentMon 帧数据；无游戏时显示 --</td></tr>
+    <tr><td class="k" rowspan="2">帧率统计</td><td>平均 FPS / 1% Low / 0.1% Low</td><td rowspan="2">滑动窗口 1000 帧：1% Low 取最差 1% 帧的平均帧速度，反映卡顿；运行状态区有当前阶段的中文提示</td></tr>
+    <tr><td>运行状态文字</td></tr>
+    <tr><td class="k">网络速率</td><td>下载 / 上传</td><td>全部物理+虚拟网卡 IPv4 字节差分，1s 采样；≥1MB/s 自动换算 MB/s</td></tr>
+  </table>
+
+  <!-- ================= 快速开始 ================= -->
+  <h2>快速开始 <span class="folio">SEC 03 / QUICKSTART</span></h2>
+  <hr class="rule">
+  <p class="dim">推荐直接使用已发布的单文件包（publish 目录 / zip 包），无需安装 .NET。</p>
+
+  <ol class="steps">
+    <li><b>取得程序文件</b>
+      <p>发布包共两个文件，必须放在同一目录：<code>BFV_FPS_Monitor.exe</code>（129.7MB 单文件，内嵌 .NET 10 运行时）+ <code>PresentMon.exe</code>（388KB 帧捕获器）。</p></li>
+    <li><b>右键 → 以管理员身份运行</b>
+      <p>读取 CPU/GPU 温度传感器与 PresentMon ETW 捕获都需要管理员权限。程序内置 manifest 要求提权，正常双击会自动弹 UAC，确认即可。</p></li>
+    <li><b>启动战地 5</b>
+      <p>面板顶部徽章 1 秒内变绿（显示 PID），PresentMon 自动启动并开始捕获，无需任何手动操作。</p></li>
+    <li><b>查看数据 / 退出</b>
+      <p>游戏退出后面板自动回到待机态，PresentMon 子进程被同步终止，不留残留。关窗即退出，CSV 自动落盘。</p></li>
+  </ol>
+
+  <div class="note"><b>注意：</b>PresentMon.exe 必须与主程序同目录。缺失时程序仍能运行，硬件/网络面板正常，但帧率区始终为 --。</div>
+
+  <!-- ================= 编译 ================= -->
+  <h2>从源码编译 <span class="folio">SEC 04 / BUILD</span></h2>
+  <hr class="rule">
+  <p class="dim">需要 .NET 10 SDK（本机已装 10.0.401）。项目根目录即 <span class="path">E:\PrivateProjects\Private\BFV_FPS_Monitor</span>。</p>
+
+<pre><span class="c"># Debug 编译（输出 bin\Debug\net10.0-windows\）</span>
+dotnet build BFV_FPS_Monitor.csproj -c Debug
+
+<span class="c"># Release 单文件发布（输出 publish\）</span>
+dotnet publish BFV_FPS_Monitor.csproj -c Release -r win-x64 --self-contained true ^
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
+  -o publish
+
+<span class="c"># PresentMon.exe 不会打进单文件包，手动补一份到 publish 目录</span>
+copy PresentMon.exe publish\</pre>
+
+  <table>
+    <tr><th style="width:34%">源文件</th><th>职责</th></tr>
+    <tr><td class="k">MonitorEngine.cs</td><td>核心引擎：bfv.exe 轮询启停、PresentMon 子进程管理与 stdout 解析、1000 帧滑动窗口统计（Avg / 1% Low / 0.1% Low）、传感器与网络采样、CSV 写入、Snapshot 原子交换</td></tr>
+    <tr><td class="k">MainWindow.xaml / .cs</td><td>WPF 深色面板：三主卡 + 统计 + 网络，DispatcherTimer 150ms 读快照刷新，温度/占用色阶告警</td></tr>
+    <tr><td class="k">App.xaml / .cs</td><td>应用入口，启动/释放引擎</td></tr>
+    <tr><td class="k">app.manifest</td><td>requireAdministrator 提权清单</td></tr>
+    <tr><td class="k">BFV_FPS_Monitor.csproj</td><td>net10.0-windows + WPF；LibreHardwareMonitorLib 0.9.6；PresentMon.exe 随编译复制到输出目录</td></tr>
+  </table>
+
+  <!-- ================= CSV ================= -->
+  <h2>数据文件 <span class="folio">SEC 05 / CSV</span></h2>
+  <hr class="rule">
+  <p>日志固定写在 <span class="path">exe 目录\bfv_fps_log.csv</span>，首帧到达后按帧追加，AutoFlush 保证断电尽量留存，Excel / WPS 可直接打开做曲线。</p>
+
+  <table>
+    <tr><th>列</th><th>含义</th></tr>
+    <tr><td class="k">Timestamp</td><td>本帧写入时刻（yyyy-MM-dd HH:mm:ss.fff）</td></tr>
+    <tr><td class="k">FrameTimeMs / FPS</td><td>本帧帧耗时与瞬时帧率</td></tr>
+    <tr><td class="k">AvgFps / OnePercentLow / ZeroPointOnePercentLow</td><td>当前滑动窗口统计值</td></tr>
+    <tr><td class="k">GpuTemp / GpuLoad / GpuMemUsed / CpuLoad</td><td>写入时刻的硬件快照；传感器缺失时写 N/A</td></tr>
+  </table>
+
+  <!-- ================= 排错 ================= -->
+  <h2>排错清单 <span class="folio">SEC 06 / TROUBLESHOOT</span></h2>
+  <hr class="rule">
+
+  <table>
+    <tr><th style="width:30%">现象</th><th>排查</th></tr>
+    <tr><td class="k">帧率区一直 --</td><td>① 确认同目录有 PresentMon.exe；② 游戏切 D3D12 渲染模式（设置 → 图形 → 渲染后端）；③ 以管理员运行主程序；④ PresentMon 须为 1.10.0+，旧版对 D3D12 支持不完整</td></tr>
+    <tr><td class="k">温度全 N/A</td><td>必须管理员权限运行；部分主板/驱动不开放个别传感器，属正常降级，其余指标不受影响</td></tr>
+    <tr><td class="k">双击闪退</td><td>UAC 弹窗被取消会直接退出；重试并在弹窗选「是」</td></tr>
+    <tr><td class="k">网络速率异常偏大</td><td>统计含虚拟网卡（VPN/虚拟机/局域网传输）；属设计行为——面板反映的是整机全部 IPv4 流量</td></tr>
+    <tr><td class="k">CSV 无新增行</td><td>无帧数据时 CSV 也不写入（按帧追加）；先解决帧捕获问题</td></tr>
+    <tr><td class="k">PresentMon 残留进程</td><td>正常情况下游戏退出/关窗都会 Kill 子进程；若强杀主程序（任务管理器结束进程）可能残留，手动结束 PresentMon.exe 即可</td></tr>
+  </table>
+
+  <!-- ================= 安全 ================= -->
+  <h2>安全边界 <span class="folio">SEC 07 / SAFETY</span></h2>
+  <hr class="rule">
+  <p>本工具<b>不注入、不挂接、不读取游戏内存</b>：PresentMon 通过 Windows ETW（Event Tracing）在进程外观察呈现事件，LibreHardwareMonitor 走内核驱动读取传感器，网络速率来自系统网卡统计——三者均为系统级公开机制，与作弊工具实现路径完全不同，不触碰 Easy Anti-Cheat 的检测红线。</p>
+  <p class="dim">唯一要求的管理员权限用于传感器读取与 ETW 订阅，程序无网络通信、无自启动、无后台驻留，关窗即完全退出。</p>
+
+  <div class="footer">
+    <span>BFV FPS MONITOR · V1.1.0-WPF</span>
+    <span>.NET 10.0.401 / PRESENTMON 1.10.0 / LIBREHARDWAREMONITOR 0.9.6</span>
+  </div>
+
+</div>
+</body>
+</html>
