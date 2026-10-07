@@ -16,10 +16,17 @@ public class SessionReportWindow : Window
     private ChartPlot _chart = null!;
     private ComboBox _metricCombo = null!;
     private TextBlock _legendText = null!;
+    private readonly Action _localizeHandler;
+
+    /// <summary>图表指标 key 顺序与组合框一致。</summary>
+    private static readonly string[] MetricKeys = { "Metric.Fps", "Chart.CpuLoad", "Report.CpuTemp", "Chart.GpuLoad", "Report.GpuTemp", "Metric.Ram", "Metric.Down", "Metric.Up" };
 
     public SessionReportWindow(GameSession s)
     {
         _s = s;
+        _localizeHandler = () => { try { Build(); } catch { } };
+        Localization.LanguageChanged += _localizeHandler;
+        Closed += (_, _) => Localization.LanguageChanged -= _localizeHandler;
         try
         {
             BuildWindow(s);
@@ -33,7 +40,7 @@ public class SessionReportWindow : Window
 
     private void BuildWindow(GameSession s)
     {
-        Title = "性能报告";
+        Title = Localization.T("Report.Title");
         Width = 1080;
         Height = 760;
         MinWidth = 900;
@@ -64,8 +71,8 @@ public class SessionReportWindow : Window
             Foreground = (Brush)FindResource("TextPrimary"),
             VerticalAlignment = VerticalAlignment.Center
         });
-        head.Children.Add(Muted($"　开始 {_s.Start:HH:mm:ss} · 结束 {_s.End:HH:mm:ss} · 时长 {_s.DurationText} · 分辨率 {_s.Resolution}"));
-        var exportBtn = Btn("导出 JSON", ExportClick);
+        head.Children.Add(Muted(Localization.F("Report.Head", _s.Start.ToString("HH:mm:ss", CultureInfo.InvariantCulture), _s.End.ToString("HH:mm:ss", CultureInfo.InvariantCulture), _s.DurationText, _s.Resolution)));
+        var exportBtn = Btn(Localization.T("Report.Export"), ExportClick);
         exportBtn.HorizontalAlignment = HorizontalAlignment.Right;
         exportBtn.VerticalAlignment = VerticalAlignment.Center;
         DockPanel.SetDock(exportBtn, Dock.Right);
@@ -77,21 +84,21 @@ public class SessionReportWindow : Window
 
         // ===== 仪表区：FPS | CPU占用 | CPU温度 | GPU占用 | GPU温度 | 内存 =====
         var gauges = new UniformGrid { Columns = 6, Margin = new Thickness(0, 4, 0, 8), Height = 150 };
-        gauges.Children.Add(MakeGauge(_s.FpsAvg, _s.FpsAvg, "平均 FPS", $"最低 {_s.FpsMin:F0} / 最高 {_s.FpsMax:F0}", ColorFromKey("AccentOrange")));
-        gauges.Children.Add(MakeGauge(_s.CpuLoadAvg, _s.CpuLoadAvg, "CPU 占用 %", $"最低 {_s.CpuLoadMin:F0} / 最高 {_s.CpuLoadMax:F0}", ColorFromKey("AccentGreen")));
-        gauges.Children.Add(MakeGauge(_s.CpuTempMax > 0 ? _s.CpuTempAvg : 0, _s.CpuTempAvg, "CPU 温度 °C", $"最低 {_s.CpuTempMin:F0} / 最高 {_s.CpuTempMax:F0}", ColorFromKey("AccentBlue")));
-        gauges.Children.Add(MakeGauge(_s.GpuLoadAvg, _s.GpuLoadAvg, "GPU 占用 %", $"最低 {_s.GpuLoadMin:F0} / 最高 {_s.GpuLoadMax:F0}", ColorFromKey("AccentPurple")));
-        gauges.Children.Add(MakeGauge(_s.GpuTempMax > 0 ? _s.GpuTempAvg : 0, _s.GpuTempAvg, "GPU 温度 °C", $"最低 {_s.GpuTempMin:F0} / 最高 {_s.GpuTempMax:F0}", ColorFromKey("AccentBlue")));
+        gauges.Children.Add(MakeGauge(_s.FpsAvg, _s.FpsAvg, Localization.T("Report.AvgFps"), Localization.F("Report.MinMax", _s.FpsMin.ToString("F0", CultureInfo.InvariantCulture), _s.FpsMax.ToString("F0", CultureInfo.InvariantCulture)), ColorFromKey("AccentOrange")));
+        gauges.Children.Add(MakeGauge(_s.CpuLoadAvg, _s.CpuLoadAvg, Localization.T("Report.CpuPct"), Localization.F("Report.MinMax", _s.CpuLoadMin.ToString("F0", CultureInfo.InvariantCulture), _s.CpuLoadMax.ToString("F0", CultureInfo.InvariantCulture)), ColorFromKey("AccentGreen")));
+        gauges.Children.Add(MakeGauge(_s.CpuTempMax > 0 ? _s.CpuTempAvg : 0, _s.CpuTempAvg, Localization.T("Report.CpuTemp"), Localization.F("Report.MinMax", _s.CpuTempMin.ToString("F0", CultureInfo.InvariantCulture), _s.CpuTempMax.ToString("F0", CultureInfo.InvariantCulture)), ColorFromKey("AccentBlue")));
+        gauges.Children.Add(MakeGauge(_s.GpuLoadAvg, _s.GpuLoadAvg, Localization.T("Report.GpuPct"), Localization.F("Report.MinMax", _s.GpuLoadMin.ToString("F0", CultureInfo.InvariantCulture), _s.GpuLoadMax.ToString("F0", CultureInfo.InvariantCulture)), ColorFromKey("AccentPurple")));
+        gauges.Children.Add(MakeGauge(_s.GpuTempMax > 0 ? _s.GpuTempAvg : 0, _s.GpuTempAvg, Localization.T("Report.GpuTemp"), Localization.F("Report.MinMax", _s.GpuTempMin.ToString("F0", CultureInfo.InvariantCulture), _s.GpuTempMax.ToString("F0", CultureInfo.InvariantCulture)), ColorFromKey("AccentBlue")));
         double ramPct = _s.RamAvgGb > 0 && App.Engine?.Static?.RamInfo != null ? _s.RamAvgGb / Math.Max(_s.RamMaxGb, 0.1) * 100 : 0;
-        gauges.Children.Add(MakeGauge(ramPct, _s.RamAvgGb, "内存 GB", $"峰值 {_s.RamMaxGb:F1} GB", ColorFromKey("AccentOrange")));
+        gauges.Children.Add(MakeGauge(ramPct, _s.RamAvgGb, Localization.T("Report.RamGb"), Localization.F("Report.RamPeak", _s.RamMaxGb.ToString("F1", CultureInfo.InvariantCulture)), ColorFromKey("AccentOrange")));
         root.Children.Add(gauges);
         Grid.SetRow(gauges, 1);
 
         // ===== FPS 相关统计条（Avg/Max/Min/1%Low/0.1%Low） =====
         var statRow = new UniformGrid { Columns = 5, Margin = new Thickness(0, 2, 0, 6) };
-        AddStat(statRow, "FPS 相关 · 平均", _s.FpsAvg, ColorFromKey("AccentOrange"));
-        AddStat(statRow, "最大", _s.FpsMax, ColorFromKey("AccentBlue"));
-        AddStat(statRow, "最小", _s.FpsMin, ColorFromKey("AccentRed"));
+        AddStat(statRow, Localization.T("Report.FpsAvg"), _s.FpsAvg, ColorFromKey("AccentOrange"));
+        AddStat(statRow, Localization.T("Report.Max"), _s.FpsMax, ColorFromKey("AccentBlue"));
+        AddStat(statRow, Localization.T("Report.Min"), _s.FpsMin, ColorFromKey("AccentRed"));
         AddStat(statRow, "1% Low", _s.FpsOneLow, ColorFromKey("AccentGreen"));
         AddStat(statRow, "0.1% Low", _s.FpsPointOneLow, ColorFromKey("AccentOrange"));
         root.Children.Add(statRow);
@@ -105,8 +112,13 @@ public class SessionReportWindow : Window
         var chartCard = Card();
         var chartHead = new DockPanel { Margin = new Thickness(0, 0, 0, 6) };
         var combo = new ComboBox { Style = (Style)FindResource("DarkCombo"), Width = 170, MinHeight = 28 };
-        foreach (var m in new[] { "FPS", "CPU 占用 %", "CPU 温度 °C", "GPU 占用 %", "GPU 温度 °C", "内存 GB", "下载 Kbps", "上传 Kbps" })
-            combo.Items.Add(m);
+        foreach (var k in MetricKeys)
+        {
+            // DynamicResource 引用：语言切换时 ComboBoxItem 文本实时跟随，无需重建窗口。
+            var ci = new ComboBoxItem();
+            ci.SetResourceReference(ContentControl.ContentProperty, k);
+            combo.Items.Add(ci);
+        }
         combo.SelectedIndex = 0;
         combo.SelectionChanged += (_, _) => RedrawChart();
         _metricCombo = combo;
@@ -135,15 +147,19 @@ public class SessionReportWindow : Window
         hwGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var st = App.Engine?.Static;
         var leftCol = new StackPanel();
-        AddHwLine(leftCol, "处理器", st?.CpuName ?? "—");
-        AddHwLine(leftCol, "显卡", st?.GpuName ?? "—");
-        AddHwLine(leftCol, "内存", st?.RamInfo ?? "—");
-        AddHwLine(leftCol, "系统", st?.OsName ?? "—");
+        AddHwLine(leftCol, Localization.T("St.Cpu"), st?.CpuName ?? "—");
+        AddHwLine(leftCol, Localization.T("St.Gpu"), st?.GpuName ?? "—");
+        AddHwLine(leftCol, Localization.T("St.Ram"), st?.RamInfo ?? "—");
+        AddHwLine(leftCol, Localization.T("St.Os"), st?.OsDisplay ?? "—");
         var rightCol = new StackPanel();
-        AddHwLine(rightCol, "主板", st?.Motherboard ?? "—");
-        AddHwLine(rightCol, "硬盘", st?.DiskModel ?? "—");
-        AddHwLine(rightCol, "显示器", st?.DisplayInfo ?? "—");
-        AddHwLine(rightCol, "功耗/能耗", $"CPU {_s.CpuPowerAvgW:F0}W · GPU {_s.GpuPowerAvgW:F0}W · 本次约 {_s.EnergyKwh * 1000:F1} Wh · CO₂ ≈ {_s.Co2Grams:F1} g");
+        AddHwLine(rightCol, Localization.T("St.Mb"), st?.Motherboard ?? "—");
+        AddHwLine(rightCol, Localization.T("St.Disk"), st?.DiskModel ?? "—");
+        AddHwLine(rightCol, Localization.T("St.Display"), st?.DisplayInfo ?? "—");
+        AddHwLine(rightCol, Localization.T("Report.Power"), Localization.F("Report.PowerVal",
+            _s.CpuPowerAvgW.ToString("F0", CultureInfo.InvariantCulture),
+            _s.GpuPowerAvgW.ToString("F0", CultureInfo.InvariantCulture),
+            (_s.EnergyKwh * 1000.0).ToString("F1", CultureInfo.InvariantCulture),
+            _s.Co2Grams.ToString("F1", CultureInfo.InvariantCulture)));
         Grid.SetColumn(leftCol, 0);
         Grid.SetColumn(rightCol, 1);
         hwGrid.Children.Add(leftCol);
@@ -160,7 +176,7 @@ public class SessionReportWindow : Window
     private void RedrawChart()
     {
         if (_chart == null || _metricCombo == null) return;
-        var m = _metricCombo.SelectedItem as string ?? "FPS";
+        int idx = _metricCombo.SelectedIndex;
         var pts = _s.Samples;
         if (pts.Count == 0)
         {
@@ -171,32 +187,33 @@ public class SessionReportWindow : Window
         double max = 100;
         Brush line = Brushes.Orange;
         var vals = new List<double>();
-        switch (m)
+        switch (idx)
         {
-            case "FPS":
+            case 0: // FPS
                 vals = pts.Select(p => p.Fps).ToList(); max = Math.Max(60, _s.FpsMax * 1.15); line = Brushes.Orange; break;
-            case "CPU 占用 %":
+            case 1: // CPU 占用 %
                 vals = pts.Select(p => p.CpuLoad).ToList(); max = 100; line = (Brush)FindResource("AccentGreen"); break;
-            case "CPU 温度 °C":
+            case 2: // CPU 温度 °C
                 vals = pts.Select(p => p.CpuTemp).ToList(); max = 100; line = (Brush)FindResource("AccentBlue"); break;
-            case "GPU 占用 %":
+            case 3: // GPU 占用 %
                 vals = pts.Select(p => p.GpuLoad).ToList(); max = 100; line = (Brush)FindResource("AccentPurple"); break;
-            case "GPU 温度 °C":
+            case 4: // GPU 温度 °C
                 vals = pts.Select(p => p.GpuTemp).ToList(); max = 100; line = (Brush)FindResource("AccentBlue"); break;
-            case "内存 GB":
+            case 5: // 内存 GB
                 vals = pts.Select(p => p.RamUsedGb).ToList(); max = Math.Max(4, _s.RamMaxGb * 1.2); line = Brushes.Gold; break;
-            case "下载 Kbps":
+            case 6: // 下载 Kbps
                 vals = pts.Select(p => p.DownKbps).ToList(); max = Math.Max(1024, pts.Count > 0 ? pts.Max(p => p.DownKbps) * 1.2 : 1024); line = Brushes.DodgerBlue; break;
-            case "上传 Kbps":
+            case 7: // 上传 Kbps
                 vals = pts.Select(p => p.UpKbps).ToList(); max = Math.Max(512, pts.Count > 0 ? pts.Max(p => p.UpKbps) * 1.2 : 512); line = (Brush)FindResource("AccentPurple"); break;
         }
         int span = Math.Max(30, (int)_s.Duration.TotalSeconds);
         _chart.SetSeries("", line, max, span);
         _chart.UpdateValues(vals);
         var lo = vals.Where(x => x > 0).DefaultIfEmpty(0).ToList();
+        var avg = vals.Where(x => x > 0).DefaultIfEmpty(0).Average();
         _legendText.Text = vals.Count > 0
-            ? $"最大 {vals.Max():F0} · 最小 {lo.Min():F0} · 平均 {vals.Where(x => x > 0).DefaultIfEmpty(0).Average():F1} · 采样 {vals.Count} 点"
-            : "无采样数据";
+            ? Localization.F("Chart.Legend", vals.Max().ToString("F0", CultureInfo.InvariantCulture), lo.Min().ToString("F0", CultureInfo.InvariantCulture), avg.ToString("F1", CultureInfo.InvariantCulture), vals.Count)
+            : Localization.T("Chart.NoData");
     }
 
     private void ExportClick(object sender, RoutedEventArgs e)
@@ -205,9 +222,9 @@ public class SessionReportWindow : Window
         {
             var path = System.IO.Path.Combine(AppContext.BaseDirectory, $"report_{_s.GameName}_{_s.Start:yyyyMMdd_HHmmss}.json");
             System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(_s, new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
-            MessageBox.Show(this, $"已导出：{path}", "导出成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, Localization.F("Export.Done", path), Localization.T("Export.Ok"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        catch (Exception ex) { MessageBox.Show(this, ex.Message, "导出失败", MessageBoxButton.OK, MessageBoxImage.Error); }
+        catch (Exception ex) { MessageBox.Show(this, ex.Message, Localization.T("Export.Fail"), MessageBoxButton.OK, MessageBoxImage.Error); }
     }
 
     // ===== 工具方法 =====

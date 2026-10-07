@@ -45,7 +45,7 @@ public sealed class TaskbarWidget : Window
 
     public TaskbarWidget()
     {
-        Title = "任务栏监控";
+        Title = Localization.T("Tbw.Title");
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         AllowsTransparency = true;
@@ -290,5 +290,11 @@ public sealed class TaskbarWidget : Window
             File.WriteAllText(PosPath, JsonSerializer.Serialize(new Cfg(Left, Top, _docked, _dockOffsetFromLeft), new JsonSerializerOptions { WriteIndented = true }));
         }
         catch { }
+    }
+
+    /// <summary>语言切换后刷新标题等文本。</summary>
+    public void ApplyLanguage()
+    {
+        try { Title = Localization.T("Tbw.Title"); } catch { }
     }
 }

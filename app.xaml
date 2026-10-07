@@ -3,6 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Exit="App_OnExit">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 默认简体中文；运行时由 Localization 切换为 Lang.en-US.xaml -->
+                <ResourceDictionary Source="/Lang.zh-CN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <SolidColorBrush x:Key="BgBase" Color="#FF0E1116"/>
         <SolidColorBrush x:Key="BgPanel" Color="#FF151A22"/>
         <SolidColorBrush x:Key="BgPanelLight" Color="#FF1C232E"/>
@@ -159,5 +164,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

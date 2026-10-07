@@ -80,8 +80,8 @@ public sealed class GameSession
     [JsonIgnore]
     public string DurationText =>
         Duration.TotalHours >= 1
-            ? $"{(int)Duration.TotalHours}小时{Duration.Minutes}分{Duration.Seconds}秒"
-            : $"{Duration.Minutes}分{Duration.Seconds}秒";
+            ? Localization.F("Dur.HhMmSs", (int)Duration.TotalHours, Duration.Minutes, Duration.Seconds)
+            : Localization.F("Dur.MmSs", Duration.Minutes, Duration.Seconds);
 }
 
 /// <summary>会话存储：sessions/ 目录，每会话一个 JSON。</summary>

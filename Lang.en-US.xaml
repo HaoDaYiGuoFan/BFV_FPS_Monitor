@@ -1,0 +1,350 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ============ UI Localization: English (US) ============ -->
+
+    <!-- Brand / Top level -->
+    <sys:String x:Key="Main.Title">Game Monitor</sys:String>
+    <sys:String x:Key="Main.NoGame">No game detected</sys:String>
+    <sys:String x:Key="Main.GameChip">{0} · PID {1} · {2}</sys:String>
+    <sys:String x:Key="Main.PinNone">Select a process from the dropdown list first</sys:String>
+    <sys:String x:Key="Status.Starting">Engine running</sys:String>
+    <sys:String x:Key="Status.Running">Engine running · Game scan 1s · HW poll {0}ms · UI refresh 200ms · Snapshot {1}</sys:String>
+    <sys:String x:Key="Status.ExclFullscreen">⚠ Game is in exclusive fullscreen — the overlay cannot cover it. Switch to borderless / fullscreen-windowed in game settings.</sys:String>
+    <sys:String x:Key="Status.SnapshotSaved">Snapshot saved: {0}</sys:String>
+    <sys:String x:Key="Status.SnapshotFail">Snapshot failed: {0}</sys:String>
+
+    <!-- Top bar buttons / tooltips -->
+    <sys:String x:Key="Tile.BtnOn">Desktop tile: ON</sys:String>
+    <sys:String x:Key="Tile.BtnOff">Desktop tile: OFF</sys:String>
+    <sys:String x:Key="Tip.TileBtn">Desktop monitor tile: CPU/GPU/VRAM/memory/network; click-through supported, taskbar mode, auto-collapse on minimize</sys:String>
+    <sys:String x:Key="Overlay.BtnOn">In-game overlay: ON (Ctrl+Alt+O unlocks)</sys:String>
+    <sys:String x:Key="Overlay.BtnOff">In-game overlay: OFF</sys:String>
+    <sys:String x:Key="Tip.OverlayBtn">OSD overlay; mouse clicks pass through while locked; Ctrl+Alt+O to unlock and drag</sys:String>
+
+    <!-- Tabs -->
+    <sys:String x:Key="Tab.Overview">Overview</sys:String>
+    <sys:String x:Key="Tab.Details">Hardware</sys:String>
+    <sys:String x:Key="Tab.Charts">Charts</sys:String>
+    <sys:String x:Key="Tab.Sessions">Stats</sys:String>
+    <sys:String x:Key="Tab.FreeGames">Free Games</sys:String>
+    <sys:String x:Key="Tab.Settings">Settings</sys:String>
+
+    <!-- Tab 1 Overview -->
+    <sys:String x:Key="Ov.GpuTitle">GPU · Graphics</sys:String>
+    <sys:String x:Key="Ov.CpuTitle">CPU · Processor</sys:String>
+    <sys:String x:Key="Ov.FpsTitle">FPS · Frame Rate</sys:String>
+    <sys:String x:Key="Ov.GpuLoad">GPU Load</sys:String>
+    <sys:String x:Key="Ov.Vram">VRAM</sys:String>
+    <sys:String x:Key="Ov.CpuLoad">CPU Load</sys:String>
+    <sys:String x:Key="Ov.Ram">Memory</sys:String>
+    <sys:String x:Key="Ov.FrameTime">Frame Time</sys:String>
+    <sys:String x:Key="Ov.FrameCount">Frames (window)</sys:String>
+    <sys:String x:Key="Ov.SnapTime">Snapshot</sys:String>
+    <sys:String x:Key="Ov.FpsStats">FPS Stats · Rolling 1000 frames</sys:String>
+    <sys:String x:Key="Ov.AvgFps">Avg FPS</sys:String>
+    <sys:String x:Key="Ov.FpsNow">Current FPS</sys:String>
+    <sys:String x:Key="Ov.RunState">Status</sys:String>
+    <sys:String x:Key="Ov.NetDiskBatt">Network · Disk · Battery</sys:String>
+    <sys:String x:Key="Ov.Download">Download</sys:String>
+    <sys:String x:Key="Ov.Upload">Upload</sys:String>
+    <sys:String x:Key="Ov.DiskIo">Disk Read/Write</sys:String>
+    <sys:String x:Key="Ov.DiskTemp">Disk Temp</sys:String>
+    <sys:String x:Key="Ov.Battery">Battery</sys:String>
+
+    <!-- Run status -->
+    <sys:String x:Key="Run.Waiting">Waiting for game…</sys:String>
+    <sys:String x:Key="Run.Waiting2">Waiting for game… (auto-detected via whitelist or fullscreen heuristic; no setup needed)</sys:String>
+    <sys:String x:Key="Run.AutoDetectHint">Auto-detection: built-in whitelist + fullscreen window heuristic; you can also pin a process manually in Settings.</sys:String>
+    <sys:String x:Key="Run.Binding">Attached to {0}, starting PresentMon…</sys:String>
+    <sys:String x:Key="Run.PmExitInfo"> ({0})</sys:String>
+    <sys:String x:Key="Run.WaitingFrames">PresentMon capturing {0}, waiting for first frame… (stdout lines {1}, valid frames {2}) — 0 lines means PM produced no output; many lines but 0 frames means parsing dropped all frames</sys:String>
+    <sys:String x:Key="Run.Collecting">Capturing: {0} · {1} frames · max frame time {2} ms</sys:String>
+
+    <!-- Tab 2 Hardware details -->
+    <sys:String x:Key="Det.Title">Hardware Info</sys:String>
+    <sys:String x:Key="Det.Sensors">Sensors · Live</sys:String>
+    <sys:String x:Key="Sec.Cpu">Processor CPU</sys:String>
+    <sys:String x:Key="Sec.Gpu">Graphics GPU</sys:String>
+    <sys:String x:Key="Sec.Misc">Memory · Disk · Network · Battery</sys:String>
+    <sys:String x:Key="St.Cpu">Processor</sys:String>
+    <sys:String x:Key="St.Gpu">Graphics</sys:String>
+    <sys:String x:Key="St.Mb">Motherboard</sys:String>
+    <sys:String x:Key="St.Disk">Disk</sys:String>
+    <sys:String x:Key="St.Display">Display</sys:String>
+    <sys:String x:Key="St.Ram">Memory</sys:String>
+    <sys:String x:Key="St.Battery">Battery</sys:String>
+    <sys:String x:Key="St.Os">OS</sys:String>
+    <sys:String x:Key="St.NoBattery">No battery detected</sys:String>
+    <sys:String x:Key="St.OsName">{0} ({1})</sys:String>
+    <sys:String x:Key="St.Arch64">64-bit</sys:String>
+    <sys:String x:Key="St.Arch32">32-bit</sys:String>
+    <sys:String x:Key="St.BatteryCap">{0} · Design capacity {1} mWh</sys:String>
+    <sys:String x:Key="St.Cores">　{0} cores / {1} threads</sys:String>
+    <sys:String x:Key="St.Vram">　VRAM {0}</sys:String>
+    <sys:String x:Key="D.CpuLoad">CPU Load</sys:String>
+    <sys:String x:Key="D.CpuTemp">CPU Temp</sys:String>
+    <sys:String x:Key="D.CpuClk">Max Core Clock</sys:String>
+    <sys:String x:Key="D.CpuPwr">Package Power</sys:String>
+    <sys:String x:Key="D.GpuLoad">GPU Load</sys:String>
+    <sys:String x:Key="D.GpuTemp">GPU Temp</sys:String>
+    <sys:String x:Key="D.GpuCoreClk">Core Clock</sys:String>
+    <sys:String x:Key="D.GpuMemClk">Memory Clock</sys:String>
+    <sys:String x:Key="D.GpuPwr">Board Power</sys:String>
+    <sys:String x:Key="D.GpuFan">Fan Speed</sys:String>
+    <sys:String x:Key="D.GpuMemUsed">VRAM Used</sys:String>
+    <sys:String x:Key="D.GpuMemTotal">VRAM Total</sys:String>
+    <sys:String x:Key="D.RamUsed">Memory Used</sys:String>
+    <sys:String x:Key="D.RamTotal">Memory Total</sys:String>
+    <sys:String x:Key="D.RamPct">Memory Usage</sys:String>
+    <sys:String x:Key="D.DiskRead">Disk Read</sys:String>
+    <sys:String x:Key="D.DiskWrite">Disk Write</sys:String>
+    <sys:String x:Key="D.DiskTemp">Disk Temp</sys:String>
+    <sys:String x:Key="D.NetDown">Download Rate</sys:String>
+    <sys:String x:Key="D.NetUp">Upload Rate</sys:String>
+    <sys:String x:Key="D.BatPct">Battery Level</sys:String>
+    <sys:String x:Key="D.BatPw">Battery Power</sys:String>
+    <sys:String x:Key="D.BatAc">Power State</sys:String>
+    <sys:String x:Key="Tb.CpuTemp">CPU Temp</sys:String>
+    <sys:String x:Key="Tb.GpuTemp">GPU Temp</sys:String>
+    <sys:String x:Key="Tb.DiskTemp">Disk Temp</sys:String>
+    <sys:String x:Key="Tb.RamPct">Memory Usage</sys:String>
+    <sys:String x:Key="Tb.GpuLoad">GPU Load</sys:String>
+    <sys:String x:Key="Cpu.TempSrc">Temp source: {0}</sys:String>
+    <sys:String x:Key="Cpu.PwrVal">Package {0} W</sys:String>
+    <sys:String x:Key="Cpu.DiskRW">R {0} / W {1}</sys:String>
+
+    <!-- Tab 3 Charts -->
+    <sys:String x:Key="Chart.Fps">FPS (last 120 s)</sys:String>
+    <sys:String x:Key="Chart.CpuLoad">CPU Load %</sys:String>
+    <sys:String x:Key="Chart.GpuLoad">GPU Load %</sys:String>
+    <sys:String x:Key="Chart.CpuTemp">CPU Temp °C</sys:String>
+    <sys:String x:Key="Chart.GpuTemp">GPU Temp °C</sys:String>
+    <sys:String x:Key="Chart.Ram">Memory Usage %</sys:String>
+    <sys:String x:Key="Chart.Vram">VRAM Usage %</sys:String>
+    <sys:String x:Key="Chart.RangePeak">Peak {0} · refresh rate {1}Hz · range top {2}</sys:String>
+    <sys:String x:Key="Chart.RangeRefresh">Refresh rate {0}Hz · range top {1}</sys:String>
+    <sys:String x:Key="Chart.Legend">Max {0} · Min {1} · Avg {2} · {3} samples</sys:String>
+    <sys:String x:Key="Chart.NoData">No sample data</sys:String>
+    <sys:String x:Key="Chart.Waiting">Waiting for data…</sys:String>
+
+    <!-- Tab 3.5 Session stats -->
+    <sys:String x:Key="Ses.Title">Game Performance Stats</sys:String>
+    <sys:String x:Key="Ses.Refresh">Refresh</sys:String>
+    <sys:String x:Key="Ses.Summary">{0} session(s) · Latest {1} {2}</sys:String>
+    <sys:String x:Key="Ses.Empty">No session records yet — start playing a game and a performance report will appear here</sys:String>
+    <sys:String x:Key="Ses.Fail">Load failed: {0}</sys:String>
+    <sys:String x:Key="Ses.Head">　{0} → {1} · Duration {2} · {3}</sys:String>
+    <sys:String x:Key="Ses.Delete">Delete</sys:String>
+    <sys:String x:Key="Ses.Detail">Details</sys:String>
+    <sys:String x:Key="Ses.Detail2">Details 2.0</sys:String>
+    <sys:String x:Key="Ses.AvgFps">Avg FPS</sys:String>
+    <sys:String x:Key="Ses.CpuAvgPeak">CPU Avg/Peak</sys:String>
+    <sys:String x:Key="Ses.GpuAvgPeak">GPU Avg/Peak</sys:String>
+    <sys:String x:Key="Ses.RamPeak">RAM Peak</sys:String>
+    <sys:String x:Key="Ses.Foot">1% Low {0} · 0.1% Low {1} · Total frames {2}</sys:String>
+
+    <!-- Tab 5 Free games -->
+    <sys:String x:Key="Free.Title">Free Game Claims</sys:String>
+    <sys:String x:Key="Free.Refresh">Refresh</sys:String>
+    <sys:String x:Key="Free.Hint">Free game info comes from Epic / Steam official interfaces; GOG / Humble deals come from CheapShark aggregate data (sorted by discount). We don't log in for you or place orders — buttons open the store pages directly.</sys:String>
+    <sys:String x:Key="Free.Loading">Fetching free game info from Epic / Steam official APIs…</sys:String>
+    <sys:String x:Key="Free.Empty">No free games available right now</sys:String>
+    <sys:String x:Key="Free.Count">{0} title(s) · {1} claimable · {2} upcoming</sys:String>
+    <sys:String x:Key="Free.NoData">The APIs returned no free games right now — the current period may be over. Click Refresh later.</sys:String>
+    <sys:String x:Key="Free.Platform">Platform {0}</sys:String>
+    <sys:String x:Key="Free.Upcoming">Starts {0} — free</sys:String>
+    <sys:String x:Key="Free.Deadline">Free claim ends {0} (left {1} d {2} h)</sys:String>
+    <sys:String x:Key="Free.Ended">This period has ended</sys:String>
+    <sys:String x:Key="Free.DealRunning">Deal active (price on store page may vary)</sys:String>
+    <sys:String x:Key="Free.FreeRunning">Free claim active (end time on store page may vary)</sys:String>
+    <sys:String x:Key="Free.Claim">Claim ↗</sys:String>
+    <sys:String x:Key="Free.Buy">Buy ↗</sys:String>
+    <sys:String x:Key="Free.ExternalOpen">or open in system browser ↗</sys:String>
+    <sys:String x:Key="Free.CoverLoading">Loading…</sys:String>
+    <sys:String x:Key="Free.EpicEmpty">Epic has no promotion this period / empty response;</sys:String>
+    <sys:String x:Key="Free.EpicFailed">Epic fetch failed ({0});</sys:String>
+    <sys:String x:Key="Free.SteamEmpty">Steam free list is empty this period;</sys:String>
+    <sys:String x:Key="Free.SteamUnreachable">Steam unreachable, skipped (network restriction);</sys:String>
+    <sys:String x:Key="Free.GogFailed">GOG deal fetch failed;</sys:String>
+    <sys:String x:Key="Free.HumbleFailed">Humble deal fetch failed;</sys:String>
+    <sys:String x:Key="Free.Updated">Updated {0} · {1}</sys:String>
+    <sys:String x:Key="Free.AllOk">All data sources OK</sys:String>
+    <sys:String x:Key="Free.FetchFailed">Fetch failed: {0} (check your network and click Refresh in the top-right)</sys:String>
+    <sys:String x:Key="Free.OpenBrowserFailed">Failed to open browser: {0}</sys:String>
+    <sys:String x:Key="Free.OpenEmbedFailed">Failed to open embedded browser: {0}</sys:String>
+    <sys:String x:Key="Tip.Claim">Opens in the embedded browser; after logging in once, cookies are saved locally, just click Claim on the page</sys:String>
+
+    <!-- Tab 4 Settings -->
+    <sys:String x:Key="Set.Process">Process Monitoring</sys:String>
+    <sys:String x:Key="Set.AutoDetect">Auto-detect game processes</sys:String>
+    <sys:String x:Key="Set.AutoDetectHint">　Rule: built-in whitelist + fullscreen window ≥90%</sys:String>
+    <sys:String x:Key="Set.PinLabel">Pin a process manually:</sys:String>
+    <sys:String x:Key="Set.Pin">Pin</sys:String>
+    <sys:String x:Key="Set.Unpin">Unpin (auto again)</sys:String>
+    <sys:String x:Key="Set.RefreshList">Refresh List</sys:String>
+    <sys:String x:Key="Set.Osd">OSD Overlay</sys:String>
+    <sys:String x:Key="Set.OsdItems">Items (check to show)</sys:String>
+    <sys:String x:Key="Set.OsdAppearance">Appearance</sys:String>
+    <sys:String x:Key="Set.OsdPos">Position</sys:String>
+    <sys:String x:Key="Set.OsdFontSize">Font size</sys:String>
+    <sys:String x:Key="Set.OsdOpacity">Opacity</sys:String>
+    <sys:String x:Key="Set.OsdCorner1">Mode 1 · Top-left</sys:String>
+    <sys:String x:Key="Set.OsdCorner2">Mode 2 · Top-center</sys:String>
+    <sys:String x:Key="Set.OsdCorner3">Mode 3 · Top-right</sys:String>
+    <sys:String x:Key="Set.OsdCpuL">CPU Load</sys:String>
+    <sys:String x:Key="Set.OsdCpuT">CPU Temp</sys:String>
+    <sys:String x:Key="Set.OsdGpuL">GPU Load</sys:String>
+    <sys:String x:Key="Set.OsdGpuT">GPU Temp</sys:String>
+    <sys:String x:Key="Set.OsdNet">Network</sys:String>
+    <sys:String x:Key="Set.Tile">Desktop Monitor Tile</sys:String>
+    <sys:String x:Key="Set.TileStyle">Style</sys:String>
+    <sys:String x:Key="Set.TileStyle0">Game++ panel (charts + bars)</sys:String>
+    <sys:String x:Key="Set.TileStyle1">Compact bar (CPU/GPU/VRAM/MEM/NET)</sys:String>
+    <sys:String x:Key="Set.TileStyle2">Card grid (2×2 big values)</sys:String>
+    <sys:String x:Key="Set.TileStyle3">Taskbar strip (progress bars)</sys:String>
+    <sys:String x:Key="Set.TileClickThrough">Click-through (tile won't intercept mouse; turn off from main window)</sys:String>
+    <sys:String x:Key="Set.TileTaskbar">Taskbar strip (brief CPU/GPU load, temps, network; docks above the taskbar)</sys:String>
+    <sys:String x:Key="Set.TileMini">Collapse tile to taskbar corner when main window is minimized (double-click to restore)</sys:String>
+    <sys:String x:Key="Set.TileResetPos">Reset Tile Position</sys:String>
+    <sys:String x:Key="Set.TileDragHint">　Drag the tile to position it freely; position is remembered automatically</sys:String>
+    <sys:String x:Key="Set.Collect">Capture &amp; Logging</sys:String>
+    <sys:String x:Key="Set.PollInterval">HW Poll Interval</sys:String>
+    <sys:String x:Key="Set.CsvLog">CSV Logging</sys:String>
+    <sys:String x:Key="Set.CsvOff">Off</sys:String>
+    <sys:String x:Key="Set.CsvFrame">Per-frame (one row per frame)</sys:String>
+    <sys:String x:Key="Set.CsvSec">Per-second (one row per second)</sys:String>
+    <sys:String x:Key="Set.CsvFile">　File: bfv_fps_log.csv in exe folder</sys:String>
+    <sys:String x:Key="Set.System">System</sys:String>
+    <sys:String x:Key="Set.Autostart">Launch at startup (writes the Run key in the current user registry)</sys:String>
+    <sys:String x:Key="Set.SessionPopup">Auto-pop performance report window after a game exits</sys:String>
+    <sys:String x:Key="Set.SnapshotBtn">Save snapshot now (all current metrics → text file)</sys:String>
+    <sys:String x:Key="Set.Language">语言 / Language</sys:String>
+    <sys:String x:Key="Lang.Hint">UI language switches instantly; use the in-page switcher for store web pages.</sys:String>
+    <sys:String x:Key="Lang.ZhName">中文（简体）</sys:String>
+    <sys:String x:Key="Lang.EnName">English (US)</sys:String>
+
+    <!-- Snapshot file -->
+    <sys:String x:Key="Snap.Header">GameMonitor snapshot  {0}</sys:String>
+    <sys:String x:Key="Snap.Game">Game: {0} (PID {1}, {2})  PresentMon: {3}</sys:String>
+    <sys:String x:Key="Snap.PmRunning">running</sys:String>
+    <sys:String x:Key="Snap.PmStopped">stopped</sys:String>
+    <sys:String x:Key="Snap.Fps">FPS: current {0} / avg {1} / 1% Low {2} / 0.1% Low {3} / max frame time {4}ms</sys:String>
+    <sys:String x:Key="Snap.Cpu">CPU: load {0} temp {1} clock {2} power {3}</sys:String>
+    <sys:String x:Key="Snap.Ram">Memory: {0} / {1}</sys:String>
+    <sys:String x:Key="Snap.Gpu">GPU: {0}  load {1} temp {2} core clock {3} power {4} fan {5}</sys:String>
+    <sys:String x:Key="Snap.Vram">VRAM: {0} / {1}</sys:String>
+    <sys:String x:Key="Snap.Disk">Disk: read {0} write {1} temp {2}</sys:String>
+    <sys:String x:Key="Snap.Net">Network: ↓{0} ↑{1}</sys:String>
+    <sys:String x:Key="Snap.Batt">Battery: {0} {1} {2}</sys:String>
+
+    <!-- Common dialogs / errors -->
+    <sys:String x:Key="App.Title">Game Monitor</sys:String>
+    <sys:String x:Key="App.Crash">Program caught an error and continued: {0}&#x0A;&#x0A;If it is tile/overlay related, disable those toggles in Settings and retry.</sys:String>
+    <sys:String x:Key="Tile.FailStart">Desktop tile failed to start (reverted to off): {0}</sys:String>
+    <sys:String x:Key="Report.PopupFail">Report popup failed: {0}</sys:String>
+    <sys:String x:Key="Export.Done">Exported: {0}</sys:String>
+    <sys:String x:Key="Export.Ok">Export successful</sys:String>
+    <sys:String x:Key="Export.Fail">Export failed</sys:String>
+
+    <!-- Performance report 1.0 -->
+    <sys:String x:Key="Report.Title">Performance Report</sys:String>
+    <sys:String x:Key="Report.Head">　Start {0} · End {1} · Duration {2} · Resolution {3}</sys:String>
+    <sys:String x:Key="Report.Export">Export JSON</sys:String>
+    <sys:String x:Key="Report.CpuPct">CPU Load %</sys:String>
+    <sys:String x:Key="Report.CpuTemp">CPU Temp °C</sys:String>
+    <sys:String x:Key="Report.GpuPct">GPU Load %</sys:String>
+    <sys:String x:Key="Report.GpuTemp">GPU Temp °C</sys:String>
+    <sys:String x:Key="Report.RamGb">Memory GB</sys:String>
+    <sys:String x:Key="Report.MinMax">Min {0} / Max {1}</sys:String>
+    <sys:String x:Key="Report.RamPeak">Peak {0} GB</sys:String>
+    <sys:String x:Key="Report.FpsAvg">FPS · Avg</sys:String>
+    <sys:String x:Key="Report.AvgFps">Avg FPS</sys:String>
+    <sys:String x:Key="Report.Max">Max</sys:String>
+    <sys:String x:Key="Report.Min">Min</sys:String>
+    <sys:String x:Key="Report.Power">Power/Energy</sys:String>
+    <sys:String x:Key="Report.PowerVal">CPU {0}W · GPU {1}W · this session ≈ {2} Wh · CO₂ ≈ {3} g</sys:String>
+    <sys:String x:Key="Metric.Fps">FPS</sys:String>
+    <sys:String x:Key="Metric.Ram">Memory GB</sys:String>
+    <sys:String x:Key="Metric.Down">Download Kbps</sys:String>
+    <sys:String x:Key="Metric.Up">Upload Kbps</sys:String>
+
+    <!-- Performance report 2.0 -->
+    <sys:String x:Key="Detail.Title">Performance Report 2.0</sys:String>
+    <sys:String x:Key="Detail.Head">　{0} → {1}　Duration {2}　Resolution {3}</sys:String>
+    <sys:String x:Key="Detail.FpsSection">FPS</sys:String>
+    <sys:String x:Key="Detail.Avg">Avg</sys:String>
+    <sys:String x:Key="Detail.Max">Max</sys:String>
+    <sys:String x:Key="Detail.Min">Min</sys:String>
+    <sys:String x:Key="Detail.CpuSection">CPU · {0}</sys:String>
+    <sys:String x:Key="Detail.GpuSection">GPU · {0}</sys:String>
+    <sys:String x:Key="Detail.Cores">Cores/Threads</sys:String>
+    <sys:String x:Key="Detail.AvgLoad">Avg Load</sys:String>
+    <sys:String x:Key="Detail.MinMaxLoad">Min/Max Load</sys:String>
+    <sys:String x:Key="Detail.AvgPwr">Avg Power</sys:String>
+    <sys:String x:Key="Detail.AvgTemp">Avg Temp</sys:String>
+    <sys:String x:Key="Detail.MinMaxTemp">Min/Max Temp</sys:String>
+    <sys:String x:Key="Detail.TotalFrames">Total Frames</sys:String>
+    <sys:String x:Key="Detail.NetTraffic">↓ {0} MB · ↑ {1} MB</sys:String>
+    <sys:String x:Key="Detail.NetTrafficL">Network Traffic</sys:String>
+    <sys:String x:Key="Detail.VramTotal">VRAM Total</sys:String>
+    <sys:String x:Key="Detail.AvgVram">Avg VRAM Usage</sys:String>
+    <sys:String x:Key="Detail.PeakVram">Peak VRAM</sys:String>
+    <sys:String x:Key="Detail.MemDisk">Memory · Disk</sys:String>
+    <sys:String x:Key="Detail.Chart">Metric Charts (full session)</sys:String>
+    <sys:String x:Key="Detail.RamSticks">RAM Modules</sys:String>
+    <sys:String x:Key="Detail.AvgPeak">Session Avg/Peak</sys:String>
+    <sys:String x:Key="Detail.Energy">Energy/CO₂</sys:String>
+    <sys:String x:Key="Detail.EnergyVal">≈ {0} Wh · CO₂ ≈ {1} g</sys:String>
+    <sys:String x:Key="Detail.Timeline">T+{0}s · FPS {1} · CPU {2}% {3}°C · GPU {4}% {5}°C</sys:String>
+
+    <!-- Store login window -->
+    <sys:String x:Key="Store.Title">Store Login · Epic / Steam</sys:String>
+    <sys:String x:Key="Store.Hint">Log in on the official page; session is stored locally (passwords never pass through or upload)</sys:String>
+    <sys:String x:Key="Store.Clear">Clear Login</sys:String>
+    <sys:String x:Key="Store.OpenExt">Open in system browser</sys:String>
+    <sys:String x:Key="Store.TitleBar">Store Login · {0}</sys:String>
+    <sys:String x:Key="Store.NoWebView">WebView2 Runtime missing</sys:String>
+    <sys:String x:Key="Store.WebViewMsg">Microsoft WebView2 Runtime is missing.&#x0A;Install it and retry: https://developer.microsoft.com/microsoft-edge/webview2/</sys:String>
+    <sys:String x:Key="Store.InitFail">Initialization failed: {0}</sys:String>
+    <sys:String x:Key="Store.LoginPage">Login page — cookies will be saved locally after signing in</sys:String>
+    <sys:String x:Key="Store.SessionKept">Session kept — after logging in once, just click Claim on the page</sys:String>
+    <sys:String x:Key="Store.ClearConfirm">This will delete all store cookies and sessions saved by this tool (store_profile folder).&#x0A;Continue?</sys:String>
+    <sys:String x:Key="Store.ClearTitle">Clear Login</sys:String>
+    <sys:String x:Key="Store.Cleared">Login state cleared</sys:String>
+    <sys:String x:Key="Store.ClearFail">Clear failed: {0}</sys:String>
+    <sys:String x:Key="Store.TipClear">Clears the store cookies saved by this tool (does not affect your browser)</sys:String>
+
+    <!-- Desktop tile / taskbar strip -->
+    <sys:String x:Key="Tile.Title">Desktop Monitor Tile</sys:String>
+    <sys:String x:Key="Tile.RenderFail">Tile render error: {0}</sys:String>
+    <sys:String x:Key="Tile.Cpu">CPU Processor</sys:String>
+    <sys:String x:Key="Tile.Gpu">GPU Graphics</sys:String>
+    <sys:String x:Key="Tile.Ram">Memory</sys:String>
+    <sys:String x:Key="Tile.Vram">VRAM</sys:String>
+    <sys:String x:Key="Tile.Net">Network</sys:String>
+    <sys:String x:Key="Tile.MemVram">Memory / VRAM</sys:String>
+    <sys:String x:Key="Tile.NetRate">Network</sys:String>
+    <sys:String x:Key="Tile.NetS">NET</sys:String>
+    <sys:String x:Key="Tile.RamPP">RAM</sys:String>
+    <sys:String x:Key="Tile.VramPP">VRAM</sys:String>
+    <sys:String x:Key="Tile.GamePPHeader">Game Monitor Desktop</sys:String>
+    <sys:String x:Key="Tile.MemSub">MEM {0}/{1}GB</sys:String>
+    <sys:String x:Key="Tile.VramSub">VRAM {0}/{1}MB</sys:String>
+    <sys:String x:Key="Tile.NetSub">All NICs IPv4 · 1s sample</sys:String>
+    <sys:String x:Key="Tbw.Title">Taskbar Monitor</sys:String>
+
+    <!-- Duration / status words -->
+    <sys:String x:Key="Dur.HhMmSs">{0}h {1}m {2}s</sys:String>
+    <sys:String x:Key="Dur.MmSs">{0}m {1}s</sys:String>
+    <sys:String x:Key="Src.White">Whitelist</sys:String>
+    <sys:String x:Key="Src.Fullscreen">Fullscreen</sys:String>
+    <sys:String x:Key="Src.Manual">Manual</sys:String>
+    <sys:String x:Key="Batt.Ac">AC</sys:String>
+    <sys:String x:Key="Batt.Dc">Battery</sys:String>
+    <sys:String x:Key="Src.CpuSensor">CPU sensor</sys:String>
+    <sys:String x:Key="Src.AcpiZone">ACPI zone</sys:String>
+    <sys:String x:Key="Pm.Exited">PM exited</sys:String>
+    <sys:String x:Key="Pm.Denied">PM capture session rejected: the game's anti-cheat is blocking new ETW sessions. The monitor rebuilds it automatically after the game exits; keep the monitor running and start it before the game to see FPS</sys:String>
+</ResourceDictionary>

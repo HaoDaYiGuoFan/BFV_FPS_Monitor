@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:BFV_FPS_Monitor"
-        Title="Game Monitor · 游戏硬件监控"
+        Title="{DynamicResource Main.Title}"
         Icon="logo.png"
         Width="1060" Height="720" MinWidth="920" MinHeight="620"
         WindowStartupLocation="CenterScreen"
@@ -47,18 +47,18 @@
                 </Border>
             </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                <Button x:Name="TileBtn" Content="桌面磁贴：关" Click="TileBtn_Click"
+                <Button x:Name="TileBtn" Content="{DynamicResource Tile.BtnOff}" Click="TileBtn_Click"
                         Background="{StaticResource BgChip}" Foreground="{StaticResource TextPrimary}"
                         BorderThickness="0" Padding="12,5" FontSize="12" Cursor="Hand" Margin="0,0,8,0"
-                        ToolTip="桌面监控磁贴：CPU/GPU/显存/内存/网络；支持穿透、任务栏显示、主窗最小化自动折叠"/>
-                <Button x:Name="OverlayBtn" Content="游戏内悬浮条：关" Click="OverlayBtn_Click"
+                        ToolTip="{DynamicResource Tip.TileBtn}"/>
+                <Button x:Name="OverlayBtn" Content="{DynamicResource Overlay.BtnOff}" Click="OverlayBtn_Click"
                         Background="{StaticResource BgChip}" Foreground="{StaticResource TextPrimary}"
                         BorderThickness="0" Padding="12,5" FontSize="12" Cursor="Hand"
-                        ToolTip="OSD 悬浮条；锁定时鼠标穿透，Ctrl+Alt+O 解锁拖动"/>
+                        ToolTip="{DynamicResource Tip.OverlayBtn}"/>
                 <Border Background="{StaticResource BgChip}" CornerRadius="12" Padding="10,4" Margin="8,0,0,0">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse x:Name="ChipGameDot" Width="8" Height="8" Fill="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="ChipGameText" Text="未检测到游戏" FontSize="11" Margin="6,0,0,0"
+                        <TextBlock x:Name="ChipGameText" Text="{DynamicResource Main.NoGame}" FontSize="11" Margin="6,0,0,0"
                                    Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -67,12 +67,12 @@
 
         <!-- ===== Tab 导航 ===== -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,2">
-            <RadioButton x:Name="TabOverview" Style="{StaticResource TabBtn}" Content="概览" GroupName="tabs" IsChecked="True" Checked="Tab_Checked"/>
-            <RadioButton Style="{StaticResource TabBtn}" Content="硬件详情" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0"/>
-            <RadioButton Style="{StaticResource TabBtn}" Content="实时曲线" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0"/>
-            <RadioButton Style="{StaticResource TabBtn}" Content="性能统计" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0"/>
-            <RadioButton Style="{StaticResource TabBtn}" Content="喜加一" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0"/>
-            <RadioButton Style="{StaticResource TabBtn}" Content="设置" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0"/>
+            <RadioButton x:Name="TabOverview" Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.Overview}" GroupName="tabs" IsChecked="True" Checked="Tab_Checked" Tag="overview"/>
+            <RadioButton Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.Details}" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0" Tag="details"/>
+            <RadioButton Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.Charts}" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0" Tag="charts"/>
+            <RadioButton Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.Sessions}" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0" Tag="sessions"/>
+            <RadioButton Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.FreeGames}" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0" Tag="freegames"/>
+            <RadioButton Style="{StaticResource TabBtn}" Content="{DynamicResource Tab.Settings}" GroupName="tabs" Checked="Tab_Checked" Margin="6,0,0,0" Tag="settings"/>
         </StackPanel>
 
         <Grid Grid.Row="2" Margin="0,10,0,0">
@@ -86,7 +86,7 @@
                     <!-- GPU 卡 -->
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="GPU · 显卡" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Ov.GpuTitle}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock x:Name="GpuTempText" Style="{StaticResource BigValue}" Text="--"/>
                                 <TextBlock Text="°C" FontSize="15" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Bottom" Margin="3,0,0,7"/>
@@ -94,12 +94,12 @@
                             </StackPanel>
                             <ProgressBar x:Name="GpuLoadBar" Style="{StaticResource HBar}" Margin="0,10,0,3"/>
                             <Grid>
-                                <TextBlock Text="GPU 占用" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.GpuLoad}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="GpuLoadText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <ProgressBar x:Name="GpuMemBar" Style="{StaticResource HBar}" Margin="0,8,0,3"/>
                             <Grid>
-                                <TextBlock Text="显存" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.Vram}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="GpuMemText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,8,0,0">
@@ -111,7 +111,7 @@
                     <!-- CPU 卡 -->
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="CPU · 处理器" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Ov.CpuTitle}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock x:Name="CpuTempText" Style="{StaticResource BigValue}" Text="--"/>
                                 <TextBlock Text="°C" FontSize="15" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Bottom" Margin="3,0,0,7"/>
@@ -119,12 +119,12 @@
                             </StackPanel>
                             <ProgressBar x:Name="CpuLoadBar" Style="{StaticResource HBar}" Margin="0,10,0,3"/>
                             <Grid>
-                                <TextBlock Text="CPU 占用" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.CpuLoad}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="CpuLoadText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <ProgressBar x:Name="RamBar" Style="{StaticResource HBar}" Margin="0,8,0,3"/>
                             <Grid>
-                                <TextBlock Text="内存" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.Ram}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="RamText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,8,0,0">
@@ -136,21 +136,21 @@
                     <!-- FPS 卡 -->
                     <Border Style="{StaticResource PanelCard}">
                         <StackPanel>
-                            <TextBlock x:Name="FpsCardTitle" Text="FPS · 帧率" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock x:Name="FpsCardTitle" Text="{DynamicResource Ov.FpsTitle}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock x:Name="FpsText" Style="{StaticResource BigValue}" Text="--"/>
                                 <TextBlock Text="FPS" FontSize="15" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Bottom" Margin="6,0,0,7"/>
                             </StackPanel>
                             <Grid Margin="0,10,0,0">
-                                <TextBlock Text="帧时间" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.FrameTime}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="FrameTimeText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,6,0,0">
-                                <TextBlock Text="采集帧数（窗口）" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.FrameCount}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="FrameCountText" Text="0" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,6,0,0">
-                                <TextBlock Text="数据快照" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.SnapTime}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="SnapTimeText" Text="--:--:--" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
@@ -164,11 +164,11 @@
                     </Grid.ColumnDefinitions>
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="帧率统计 · 滑动窗口 1000 帧" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Ov.FpsStats}" Style="{StaticResource PanelTitle}"/>
                             <UniformGrid Columns="4" Margin="0,4,0,0">
                                 <StackPanel>
                                     <TextBlock x:Name="AvgFpsText" Text="--" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBlue}"/>
-                                    <TextBlock Text="平均 FPS" Style="{StaticResource ChipText}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="{DynamicResource Ov.AvgFps}" Style="{StaticResource ChipText}" Margin="0,2,0,0"/>
                                 </StackPanel>
                                 <StackPanel>
                                     <TextBlock x:Name="P1LowText" Text="--" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentOrange}"/>
@@ -180,41 +180,41 @@
                                 </StackPanel>
                                 <StackPanel>
                                     <TextBlock x:Name="FpsNowText" Text="--" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentGreen}"/>
-                                    <TextBlock Text="瞬时 FPS" Style="{StaticResource ChipText}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="{DynamicResource Ov.FpsNow}" Style="{StaticResource ChipText}" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </UniformGrid>
                             <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,14,0,10"/>
-                            <TextBlock Text="运行状态" Style="{StaticResource PanelTitle}"/>
-                            <TextBlock x:Name="RunStateText" FontSize="12" Foreground="{StaticResource TextPrimary}" TextWrapping="Wrap" Text="等待游戏启动…"/>
+                            <TextBlock Text="{DynamicResource Ov.RunState}" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock x:Name="RunStateText" FontSize="12" Foreground="{StaticResource TextPrimary}" TextWrapping="Wrap" Text="{DynamicResource Run.Waiting}"/>
                             <TextBlock FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,8,0,0" TextWrapping="Wrap"
-                                       Text="自动检测：白名单 + 全屏窗口启发式；也可在「设置」里手动固定某个进程。"/>
+                                       Text="{DynamicResource Run.AutoDetectHint}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource PanelCard}">
                         <StackPanel>
-                            <TextBlock Text="网络 · 磁盘 · 电池" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Ov.NetDiskBatt}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                 <TextBlock Text="↓" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentGreen}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <StackPanel>
                                     <TextBlock x:Name="NetDownText" Text="--" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                                    <TextBlock Text="下载" Style="{StaticResource ChipText}"/>
+                                    <TextBlock Text="{DynamicResource Ov.Download}" Style="{StaticResource ChipText}"/>
                                 </StackPanel>
                                 <TextBlock Text="↑" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentPurple}" VerticalAlignment="Center" Margin="24,0,10,0"/>
                                 <StackPanel>
                                     <TextBlock x:Name="NetUpText" Text="--" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
-                                    <TextBlock Text="上传" Style="{StaticResource ChipText}"/>
+                                    <TextBlock Text="{DynamicResource Ov.Upload}" Style="{StaticResource ChipText}"/>
                                 </StackPanel>
                             </StackPanel>
                             <Grid Margin="0,14,0,0">
-                                <TextBlock Text="磁盘读写" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.DiskIo}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="DiskText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,6,0,0">
-                                <TextBlock Text="磁盘温度" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.DiskTemp}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="DiskTempText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0,6,0,0">
-                                <TextBlock Text="电池" Style="{StaticResource ChipText}"/>
+                                <TextBlock Text="{DynamicResource Ov.Battery}" Style="{StaticResource ChipText}"/>
                                 <TextBlock x:Name="BatteryText" Text="N/A" Style="{StaticResource ChipText}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
@@ -233,7 +233,7 @@
                     <!-- 左：硬件档案 -->
                     <Border Grid.Column="0" Style="{StaticResource PanelCard}" Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="硬件信息" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Det.Title}" Style="{StaticResource PanelTitle}"/>
                             <TextBlock x:Name="StOsText" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Text="—"/>
                             <TextBlock x:Name="StMachineText" Style="{StaticResource ChipText}" Margin="0,2,0,12" Text=""/>
                             <Grid x:Name="StGrid">
@@ -250,7 +250,7 @@
                         <StackPanel>
                             <Border Style="{StaticResource PanelCard}">
                                 <StackPanel>
-                                    <TextBlock Text="传感器 · 实时" Style="{StaticResource PanelTitle}"/>
+                                    <TextBlock Text="{DynamicResource Det.Sensors}" Style="{StaticResource PanelTitle}"/>
                                     <StackPanel x:Name="TempBarsHost"/>
                                     <Grid x:Name="DetailGrid" Margin="0,8,0,0"/>
                                 </StackPanel>
@@ -273,7 +273,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <DockPanel>
-                            <TextBlock Text="FPS 曲线（最近 120 秒）" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.Fps}" Style="{StaticResource PanelTitle}"/>
                             <TextBlock x:Name="FpsRangeText" DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource ChipText}" Text=""/>
                         </DockPanel>
                         
@@ -296,7 +296,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="CPU 占用 %" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.CpuLoad}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="CpuChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -306,7 +306,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="GPU 占用 %" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.GpuLoad}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="GpuChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -316,7 +316,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="CPU 温度 °C" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.CpuTemp}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="CpuTempChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -326,7 +326,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="GPU 温度 °C" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.GpuTemp}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="GpuTempChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -336,7 +336,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="内存占用 %" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.Ram}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="RamChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -346,7 +346,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="显存占用 %" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Chart.Vram}" Style="{StaticResource PanelTitle}"/>
                             <controls:ChartPlot x:Name="GpuMemChart" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -361,11 +361,11 @@
                 </Grid.RowDefinitions>
                 <DockPanel Margin="2,0,2,10">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                        <TextBlock Text="游戏性能统计" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Ses.Title}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="SessionSummaryText" Style="{StaticResource ChipText}" Margin="12,0,0,0" VerticalAlignment="Center" Text=""/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Button x:Name="SessionsRefreshBtn" Content="刷新" Style="{StaticResource OverlayToggle}" Click="SessionsRefreshBtn_Click"/>
+                        <Button x:Name="SessionsRefreshBtn" Content="{DynamicResource Ses.Refresh}" Style="{StaticResource OverlayToggle}" Click="SessionsRefreshBtn_Click"/>
                     </StackPanel>
                 </DockPanel>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -381,17 +381,17 @@
                 </Grid.RowDefinitions>
                 <DockPanel Margin="2,0,2,10">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                        <TextBlock Text="限免游戏领取" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Free.Title}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
                         <TextBlock x:Name="FreeCountText" Style="{StaticResource ChipText}" Margin="12,0,0,0" VerticalAlignment="Center" Text=""/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Button x:Name="FreeRefreshBtn" Content="刷新" Style="{StaticResource OverlayToggle}" Click="FreeRefreshBtn_Click"/>
+                        <Button x:Name="FreeRefreshBtn" Content="{DynamicResource Free.Refresh}" Style="{StaticResource OverlayToggle}" Click="FreeRefreshBtn_Click"/>
                     </StackPanel>
                 </DockPanel>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="FreeHintText" FontSize="11.5" Foreground="{StaticResource TextSecondary}" Margin="2,0,2,10" TextWrapping="Wrap"
-                                   Text="限免情报来自 Epic / Steam 官方接口，GOG / Humble 特价来自 CheapShark 聚合数据（按折扣力度排序）。不代登录、不自动下单，点按钮直达商店页。"/>
+                                   Text="{DynamicResource Free.Hint}"/>
                         <StackPanel x:Name="FreeGamesHost"/>
                         <TextBlock x:Name="FreeStatusText" Style="{StaticResource ChipText}" Margin="2,12,0,0" Text=""/>
                     </StackPanel>
@@ -403,53 +403,53 @@
                 <StackPanel MaxWidth="760" HorizontalAlignment="Left">
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,0,10">
                         <StackPanel>
-                            <TextBlock Text="进程监控" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Set.Process}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                <CheckBox x:Name="AutoDetectChk" Content="自动检测游戏进程" Foreground="{StaticResource TextPrimary}" IsChecked="True"/>
-                                <TextBlock Text="　规则：内置白名单 + 全屏窗口 ≥90%" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="AutoDetectChk" Content="{DynamicResource Set.AutoDetect}" Foreground="{StaticResource TextPrimary}" IsChecked="True"/>
+                                <TextBlock Text="{DynamicResource Set.AutoDetectHint}" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                <TextBlock Text="手动固定监控：" Style="{StaticResource ChipText}" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Set.PinLabel}" Style="{StaticResource ChipText}" VerticalAlignment="Center"/>
                                 <ComboBox x:Name="ProcCombo" Style="{StaticResource DarkCombo}" Width="240" MinHeight="30"/>
-                                <Button x:Name="PinBtn" Content="固定" Style="{StaticResource OverlayToggle}" Margin="8,0,0,0" Click="PinBtn_Click"/>
-                                <Button x:Name="UnpinBtn" Content="解除，回到自动" Style="{StaticResource OverlayToggle}" Margin="6,0,0,0" Click="UnpinBtn_Click"/>
-                                <Button x:Name="RefreshProcBtn" Content="刷新列表" Style="{StaticResource OverlayToggle}" Margin="6,0,0,0" Click="RefreshProcBtn_Click"/>
+                                <Button x:Name="PinBtn" Content="{DynamicResource Set.Pin}" Style="{StaticResource OverlayToggle}" Margin="8,0,0,0" Click="PinBtn_Click"/>
+                                <Button x:Name="UnpinBtn" Content="{DynamicResource Set.Unpin}" Style="{StaticResource OverlayToggle}" Margin="6,0,0,0" Click="UnpinBtn_Click"/>
+                                <Button x:Name="RefreshProcBtn" Content="{DynamicResource Set.RefreshList}" Style="{StaticResource OverlayToggle}" Margin="6,0,0,0" Click="RefreshProcBtn_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,0,10">
                         <StackPanel>
-                            <TextBlock Text="OSD 悬浮条" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Set.Osd}" Style="{StaticResource PanelTitle}"/>
                             <UniformGrid Columns="2" Margin="0,2,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="显示项目（勾选即显示）" Style="{StaticResource ChipText}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Set.OsdItems}" Style="{StaticResource ChipText}" Margin="0,0,0,4"/>
                                     <CheckBox x:Name="OsdFps" Content="FPS" Foreground="{StaticResource TextPrimary}"/>
-                                    <CheckBox x:Name="OsdCpuL" Content="CPU 占用" Foreground="{StaticResource TextPrimary}"/>
-                                    <CheckBox x:Name="OsdCpuT" Content="CPU 温度" Foreground="{StaticResource TextPrimary}"/>
-                                    <CheckBox x:Name="OsdGpuL" Content="GPU 占用" Foreground="{StaticResource TextPrimary}"/>
-                                    <CheckBox x:Name="OsdGpuT" Content="GPU 温度" Foreground="{StaticResource TextPrimary}"/>
-                                    <CheckBox x:Name="OsdNet" Content="网速" Foreground="{StaticResource TextPrimary}"/>
+                                    <CheckBox x:Name="OsdCpuL" Content="{DynamicResource Set.OsdCpuL}" Foreground="{StaticResource TextPrimary}"/>
+                                    <CheckBox x:Name="OsdCpuT" Content="{DynamicResource Set.OsdCpuT}" Foreground="{StaticResource TextPrimary}"/>
+                                    <CheckBox x:Name="OsdGpuL" Content="{DynamicResource Set.OsdGpuL}" Foreground="{StaticResource TextPrimary}"/>
+                                    <CheckBox x:Name="OsdGpuT" Content="{DynamicResource Set.OsdGpuT}" Foreground="{StaticResource TextPrimary}"/>
+                                    <CheckBox x:Name="OsdNet" Content="{DynamicResource Set.OsdNet}" Foreground="{StaticResource TextPrimary}"/>
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="外观" Style="{StaticResource ChipText}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Set.OsdAppearance}" Style="{StaticResource ChipText}" Margin="0,0,0,4"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                                        <TextBlock Text="位置" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="42"/>
+                                        <TextBlock Text="{DynamicResource Set.OsdPos}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="42"/>
                                         <ComboBox x:Name="OsdCornerCombo" Style="{StaticResource DarkCombo}" Width="150" MinHeight="28"
                                                   SelectionChanged="OsdSetting_Changed">
-                                            <ComboBoxItem>模式1 · 左上角</ComboBoxItem>
-                                            <ComboBoxItem>模式2 · 上部居中</ComboBoxItem>
-                                            <ComboBoxItem>模式3 · 右上角</ComboBoxItem>
+                                            <ComboBoxItem>{DynamicResource Set.OsdCorner1}</ComboBoxItem>
+                                            <ComboBoxItem>{DynamicResource Set.OsdCorner2}</ComboBoxItem>
+                                            <ComboBoxItem>{DynamicResource Set.OsdCorner3}</ComboBoxItem>
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,6">
-                                        <TextBlock Text="字号" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="42"/>
+                                        <TextBlock Text="{DynamicResource Set.OsdFontSize}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="42"/>
                                         <Slider x:Name="OsdFontSlider" Width="120" Minimum="10" Maximum="22" Value="14"
                                                 TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="OsdSetting_Changed"/>
                                         <TextBlock x:Name="OsdFontVal" Text="14" Style="{StaticResource ChipText}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,6">
-                                        <TextBlock Text="不透明度" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="62"/>
+                                        <TextBlock Text="{DynamicResource Set.OsdOpacity}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="62"/>
                                         <Slider x:Name="OsdOpacitySlider" Width="100" Minimum="30" Maximum="100" Value="90"
                                                 TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="OsdSetting_Changed"/>
                                         <TextBlock x:Name="OsdOpacityVal" Text="90%" Style="{StaticResource ChipText}" Margin="8,0,0,0" VerticalAlignment="Center"/>
@@ -461,58 +461,66 @@
 
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,0,10">
                         <StackPanel>
-                            <TextBlock Text="桌面监控磁贴" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Set.Tile}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,2">
-                                <TextBlock Text="风格" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
+                                <TextBlock Text="{DynamicResource Set.TileStyle}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
                                 <ComboBox x:Name="TileStyleCombo" Style="{StaticResource DarkCombo}" Width="190" MinHeight="30" SelectionChanged="TileStyle_Changed">
-                                    <ComboBoxItem>游戏加加面板（曲线+进度条）</ComboBoxItem>
-                                    <ComboBoxItem>紧凑横条（CPU/GPU/显存/内存/网络）</ComboBoxItem>
-                                    <ComboBoxItem>卡片网格（2×2 大数值）</ComboBoxItem>
-                                    <ComboBoxItem>任务栏细条（进度条型）</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.TileStyle0}</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.TileStyle1}</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.TileStyle2}</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.TileStyle3}</ComboBoxItem>
                                 </ComboBox>
                             </StackPanel>
-                            <CheckBox x:Name="TileClickThroughChk" Content="鼠标穿透（开启后磁贴不拦截鼠标，需从主窗关闭）" Foreground="{StaticResource TextPrimary}" Margin="0,10,0,0"
+                            <CheckBox x:Name="TileClickThroughChk" Content="{DynamicResource Set.TileClickThrough}" Foreground="{StaticResource TextPrimary}" Margin="0,10,0,0"
                                       Checked="TileOpt_Changed" Unchecked="TileOpt_Changed"/>
-                            <CheckBox x:Name="TileTaskbarChk" Content="任务栏监控条（显示简要 CPU/GPU 占用、温度、网速，停靠在任务栏上方）" Foreground="{StaticResource TextPrimary}" Margin="0,6,0,0"
+                            <CheckBox x:Name="TileTaskbarChk" Content="{DynamicResource Set.TileTaskbar}" Foreground="{StaticResource TextPrimary}" Margin="0,6,0,0"
                                       Checked="TileOpt_Changed" Unchecked="TileOpt_Changed"/>
-                            <CheckBox x:Name="TileMiniChk" Content="主窗口最小化时，磁贴自动折叠到任务栏角落（双击磁贴恢复）" Foreground="{StaticResource TextPrimary}" Margin="0,6,0,0"
+                            <CheckBox x:Name="TileMiniChk" Content="{DynamicResource Set.TileMini}" Foreground="{StaticResource TextPrimary}" Margin="0,6,0,0"
                                       Checked="TileOpt_Changed" Unchecked="TileOpt_Changed"/>
                             <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                                <Button x:Name="TileResetPosBtn" Content="重置磁贴位置" Style="{StaticResource OverlayToggle}" Click="TileResetPosBtn_Click"/>
-                                <TextBlock Text="　拖动磁贴可自由摆放，位置自动记忆" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                                <Button x:Name="TileResetPosBtn" Content="{DynamicResource Set.TileResetPos}" Style="{StaticResource OverlayToggle}" Click="TileResetPosBtn_Click"/>
+                                <TextBlock Text="{DynamicResource Set.TileDragHint}" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource PanelCard}" Margin="0,0,0,10">
                         <StackPanel>
-                            <TextBlock Text="采集与日志" Style="{StaticResource PanelTitle}"/>
+                            <TextBlock Text="{DynamicResource Set.Collect}" Style="{StaticResource PanelTitle}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,2">
-                                <TextBlock Text="硬件轮询间隔" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
+                                <TextBlock Text="{DynamicResource Set.PollInterval}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
                                 <Slider x:Name="HwPollSlider" Width="140" Minimum="500" Maximum="5000" Value="1000"
                                         TickFrequency="250" IsSnapToTickEnabled="True" ValueChanged="HwPoll_Changed"/>
                                 <TextBlock x:Name="HwPollVal" Text="1000ms" Style="{StaticResource ChipText}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,10">
-                                <TextBlock Text="CSV 日志" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
+                                <TextBlock Text="{DynamicResource Set.CsvLog}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
                                 <ComboBox x:Name="CsvModeCombo" Style="{StaticResource DarkCombo}" Width="150" MinHeight="30" SelectionChanged="CsvMode_Changed">
-                                    <ComboBoxItem>关闭</ComboBoxItem>
-                                    <ComboBoxItem>帧级（每帧一行）</ComboBoxItem>
-                                    <ComboBoxItem>秒级（每秒一行）</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.CsvOff}</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.CsvFrame}</ComboBoxItem>
+                                    <ComboBoxItem>{DynamicResource Set.CsvSec}</ComboBoxItem>
                                 </ComboBox>
-                                <TextBlock Text="　文件：exe 目录 bfv_fps_log.csv" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Set.CsvFile}" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource PanelCard}">
                         <StackPanel>
-                            <TextBlock Text="系统" Style="{StaticResource PanelTitle}"/>
-                            <CheckBox x:Name="AutostartChk" Content="开机自启（写入当前用户注册表 Run 键）" Foreground="{StaticResource TextPrimary}"
+                            <TextBlock Text="{DynamicResource Set.System}" Style="{StaticResource PanelTitle}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                                <TextBlock Text="{DynamicResource Set.Language}" Style="{StaticResource ChipText}" VerticalAlignment="Center" Width="88"/>
+                                <ComboBox x:Name="LanguageCombo" Style="{StaticResource DarkCombo}" Width="150" MinHeight="30" SelectionChanged="Language_Changed">
+                                    <ComboBoxItem Tag="zh-CN">{DynamicResource Lang.ZhName}</ComboBoxItem>
+                                    <ComboBoxItem Tag="en-US">{DynamicResource Lang.EnName}</ComboBoxItem>
+                                </ComboBox>
+                                <TextBlock Text="{DynamicResource Lang.Hint}" FontSize="11" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+                            <CheckBox x:Name="AutostartChk" Content="{DynamicResource Set.Autostart}" Foreground="{StaticResource TextPrimary}"
                                       Checked="Autostart_Changed" Unchecked="Autostart_Changed"/>
-                            <CheckBox x:Name="SessionPopupChk" Content="游戏退出后自动弹出性能报告窗口" Foreground="{StaticResource TextPrimary}"
+                            <CheckBox x:Name="SessionPopupChk" Content="{DynamicResource Set.SessionPopup}" Foreground="{StaticResource TextPrimary}"
                                       Checked="SessionPopup_Changed" Unchecked="SessionPopup_Changed"/>
-                            <Button x:Name="SnapshotBtn" Content="立即保存快照（当前全部指标 → 文本文件）" Style="{StaticResource OverlayToggle}" Margin="0,12,0,0"
+                            <Button x:Name="SnapshotBtn" Content="{DynamicResource Set.SnapshotBtn}" Style="{StaticResource OverlayToggle}" Margin="0,12,0,0"
                                     HorizontalAlignment="Left" Click="SnapshotBtn_Click"/>
                         </StackPanel>
                     </Border>
@@ -523,6 +531,6 @@
         <!-- ===== 底部状态栏 ===== -->
         <TextBlock Grid.Row="3" x:Name="StatusText" Margin="0,12,0,0" FontSize="11"
                    Foreground="{StaticResource TextSecondary}"
-                   Text="引擎运行中"/>
+                   Text="{DynamicResource Status.Starting}"/>
     </Grid>
 </Window>

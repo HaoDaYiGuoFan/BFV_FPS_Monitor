@@ -18,6 +18,13 @@
 
 ## ✨ Features
 
+### 🌐 Runtime Language Switching
+
+- Switch the UI language anytime from **Settings → System → UI Language** — takes effect **immediately, no restart needed**
+- Fully localized UI: main window, the 7 live charts, session list / detail, performance reports 1.0 / 2.0, snapshots, desktop tile, taskbar mini widget, store login window, etc.
+- Your selection is persisted to `settings.json` (`Language` field) and restored on the next launch
+
+### 🎮 Automatic Game Detection
 ### 🎮 Automatic Game Detection
 
 - Built-in whitelist of mainstream games: Battlefield series (BFV / BF1 / BF2042 / BF4), CS2 / CSGO, Apex Legends, Fortnite, VALORANT, PUBG, Overwatch, Call of Duty family, GTA5, Red Dead Redemption 2, Cyberpunk 2077, Elden Ring, Monster Hunter, Assassin's Creed family, Genshin Impact, Wuthering Waves, Zenless Zone Zero, Honkai: Star Rail, DNF, CrossFire, JX3, Justice (逆水寒) and more — with **prefix fuzzy matching** (e.g. `cod` → `CoDWaW`)
@@ -193,11 +200,14 @@ BFV_FPS_Monitor/
 **Why must the app run as administrator?**
 Reading CPU/GPU temperature/power sensors (LibreHardwareMonitor) and PresentMon ETW capture both require administrator rights; `app.manifest` declares `requireAdministrator`.
 
-**Game is running but FPS shows nothing?**
-1. Make sure the process hits the whitelist, or runs in fullscreen ≥90% coverage;
-2. Check the "Run Status" area for PresentMon being rejected;
-3. Enable "capture-all mode" (`PmCaptureAll`) in Settings;
+**Game is running but FPS shows nothing (CPU/GPU are fine)?**
+FPS relies on the PresentMon ETW session, and anti-cheat drivers such as EA AntiCheat **globally reject creating new ETW sessions** once loaded (`failed to start trace session: access denied` in `engine.log`). Therefore:
+1. **Start this monitor BEFORE launching the game** — at startup the monitor races the anti-cheat to establish a prefetch session, then filters by PID once the game appears;
+2. If the monitor started late (or the prefetch session died mid-game), nothing can be done while the game runs — after the game exits the monitor **automatically rebuilds the session** (see "rebuilding prefetch session" in the log); keep the monitor running and launch the game again to restore FPS;
+3. "PM session rejected" in the run status means exactly this; for other PM errors try enabling "capture-all mode" (`PmCaptureAll`) in Settings;
 4. Make sure `PresentMon.exe` sits in the app directory.
+
+CPU/GPU sensors go through LibreHardwareMonitor and do not depend on ETW, which is why they keep working when anti-cheat blocks frame capture.
 
 **No temperature / power readings?**
 Some motherboard/GPU sensors are unsupported by LibreHardwareMonitor; run as administrator and check the "Sensors · Live" area.

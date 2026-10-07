@@ -18,8 +18,8 @@ public partial class App : Application
         {
             try
             {
-                MessageBox.Show("程序遇到错误但已拦载：" + args.Exception.Message + "\n\n若是磁贴/悬浮条相关，请在设置里关闭对应开关后重试。",
-                    "Game Monitor", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(Localization.F("App.Crash", args.Exception.Message),
+                    Localization.T("App.Title"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 args.Handled = true;
             }
             catch { args.Handled = false; }
@@ -27,6 +27,7 @@ public partial class App : Application
 
         _settings = AppSettings.Load();
         Settings = _settings;
+        Localization.Init(_settings.Language);   // 先安置语言字典，再创建主窗（XAML DynamicResource 才能解析）
         _engine = new MonitorEngine(_settings);
         Engine = _engine;
         _engine.Start();

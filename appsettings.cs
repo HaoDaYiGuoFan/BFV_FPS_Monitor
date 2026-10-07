@@ -26,6 +26,9 @@ public sealed class AppSettings
     // 系统
     public bool Autostart { get; set; }
 
+    // 界面语言：zh-CN / en-US
+    public string Language { get; set; } = "zh-CN";
+
     // 桌面监控磁贴
     public bool TileOn { get; set; }
     public string TileStyle { get; set; } = "Bar";       // Bar=紧凑横条 Card=卡片网格 Taskbar=任务栏细条

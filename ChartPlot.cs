@@ -136,7 +136,7 @@ public sealed class ChartPlot : FrameworkElement
         }
         else
         {
-            var text = new FormattedText("等待数据…", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, ftLbl, 11, dimBrush, dpi);
+            var text = new FormattedText(Localization.T("Chart.Waiting"), CultureInfo.InvariantCulture, FlowDirection.LeftToRight, ftLbl, 11, dimBrush, dpi);
             dc.DrawText(text, new Point(padL + plotW / 2 - text.Width / 2, padT + plotH / 2 - text.Height / 2));
         }
     }

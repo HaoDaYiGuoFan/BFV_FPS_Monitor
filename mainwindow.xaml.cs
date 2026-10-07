@@ -56,6 +56,7 @@ public partial class MainWindow : Window
         BuildDetailsPanel();
         RefreshSessions();
         if (App.Engine != null) App.Engine.SessionEnded += OnSessionEnded;
+        Localization.LanguageChanged += () => { try { ApplyLanguage(); } catch { } };
         Closed += (_, _) => { CloseOverlay(); _tile?.Close(); _tbWidget?.Close(); };
     }
 
@@ -136,6 +137,8 @@ public partial class MainWindow : Window
 
         CsvModeCombo.SelectedIndex = Math.Clamp(_settings.CsvModeInt, 0, 2);
 
+        LanguageCombo.SelectedIndex = _settings.Language == Localization.EnUS ? 1 : 0;
+
         AutostartChk.IsChecked = _settings.Autostart;
         SessionPopupChk.IsChecked = _settings.SessionReportPopup;
 
@@ -199,7 +202,6 @@ public partial class MainWindow : Window
 
     private void Autostart_Changed(object sender, RoutedEventArgs e)
     {
-        if (AutostartChk.IsChecked == null) return;
         _settings.Autostart = AutostartChk.IsChecked == true;
         _settings.Save();
         try
@@ -215,12 +217,22 @@ public partial class MainWindow : Window
         catch { }
     }
 
+    private void Language_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (LanguageCombo == null || LanguageCombo.SelectedItem is not ComboBoxItem item) return;
+        if (item.Tag is not string lang) return;
+        if (lang == Localization.Current) return;
+        _settings.Language = lang;
+        _settings.Save();
+        Localization.Set(lang);
+    }
+
     private void PinBtn_Click(object sender, RoutedEventArgs e)
     {
         if (ProcCombo.SelectedItem is string s && !string.IsNullOrEmpty(s))
             App.Engine.PinProcess(s);
         else
-            StatusText.Text = "请先从下拉框选择要固定的进程";
+            StatusText.Text = Localization.T("Main.PinNone");
     }
 
     private void UnpinBtn_Click(object sender, RoutedEventArgs e)
@@ -247,20 +259,20 @@ public partial class MainWindow : Window
             var s = App.Engine.Current;
             string path = System.IO.Path.Combine(AppContext.BaseDirectory, $"snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine($"GameMonitor 快照  {s.Time:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($"游戏: {s.GameName} (PID {s.GamePid}, {s.GameSource})  PresentMon: {(s.PresentMonRunning ? "运行中" : "停止")}");
-            sb.AppendLine($"FPS: 瞬时 {s.Fps:F1} / 平均 {s.AvgFps:F1} / 1% Low {s.OnePercentLow:F1} / 0.1% Low {s.PointOnePercentLow:F1} / 最大帧耗时 {s.MaxFrameMs:F1}ms");
-            sb.AppendLine($"CPU: 占用 {Pct(s.CpuLoad)} 温度 {Temp(s.CpuTemp)} 频率 {Mhz(s.CpuMaxClock)} 功耗 {W(s.CpuPower)}");
-            sb.AppendLine($"内存: {Gb(s.RamUsedGb)} / {Gb(s.RamTotalGb)}");
-            sb.AppendLine($"GPU: {s.GpuName}  占用 {Pct(s.GpuLoad)} 温度 {Temp(s.GpuTemp)} 核心频率 {Mhz(s.GpuCoreClock)} 功耗 {W(s.GpuPower)} 风扇 {Rpm(s.GpuFanRpm)}");
-            sb.AppendLine($"显存: {Mb(s.GpuMemUsed)} / {Mb(s.GpuMemTotal)}");
-            sb.AppendLine($"磁盘: 读 {Kbs(s.DiskReadKbs)} 写 {Kbs(s.DiskWriteKbs)} 温度 {Temp(s.DiskTemp)}");
-            sb.AppendLine($"网络: ↓{Kbs(s.DownKbps)} ↑{Kbs(s.UpKbps)}");
-            sb.AppendLine($"电池: {Pct(s.BatteryPct)} {W(s.BatteryPowerW)} {s.AcOnline}");
+            sb.AppendLine(Localization.F("Snap.Header", s.Time.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)));
+            sb.AppendLine(Localization.F("Snap.Game", s.GameName, s.GamePid, Localization.GameSource(s.GameSource), s.PresentMonRunning ? Localization.T("Snap.PmRunning") : Localization.T("Snap.PmStopped")));
+            sb.AppendLine(Localization.F("Snap.Fps", s.Fps.ToString("F1", CultureInfo.InvariantCulture), s.AvgFps.ToString("F1", CultureInfo.InvariantCulture), s.OnePercentLow.ToString("F1", CultureInfo.InvariantCulture), s.PointOnePercentLow.ToString("F1", CultureInfo.InvariantCulture), s.MaxFrameMs.ToString("F1", CultureInfo.InvariantCulture)));
+            sb.AppendLine(Localization.F("Snap.Cpu", Pct(s.CpuLoad), Temp(s.CpuTemp), Mhz(s.CpuMaxClock), W(s.CpuPower)));
+            sb.AppendLine(Localization.F("Snap.Ram", Gb(s.RamUsedGb), Gb(s.RamTotalGb)));
+            sb.AppendLine(Localization.F("Snap.Gpu", s.GpuName, Pct(s.GpuLoad), Temp(s.GpuTemp), Mhz(s.GpuCoreClock), W(s.GpuPower), Rpm(s.GpuFanRpm)));
+            sb.AppendLine(Localization.F("Snap.Vram", Mb(s.GpuMemUsed), Mb(s.GpuMemTotal)));
+            sb.AppendLine(Localization.F("Snap.Disk", Kbs(s.DiskReadKbs), Kbs(s.DiskWriteKbs), Temp(s.DiskTemp)));
+            sb.AppendLine(Localization.F("Snap.Net", Kbs(s.DownKbps), Kbs(s.UpKbps)));
+            sb.AppendLine(Localization.F("Snap.Batt", Pct(s.BatteryPct), W(s.BatteryPowerW), Localization.BatteryState(s.AcOnline)));
             File.WriteAllText(path, sb.ToString());
-            StatusText.Text = "快照已保存: " + path;
+            StatusText.Text = Localization.F("Status.SnapshotSaved", path);
         }
-        catch (Exception ex) { StatusText.Text = "快照失败: " + ex.Message; }
+        catch (Exception ex) { StatusText.Text = Localization.F("Status.SnapshotFail", ex.Message); }
     }
 
     // ================= 性能统计（游戏加加风格） =================
@@ -268,7 +280,12 @@ public partial class MainWindow : Window
     private GameSession? _pendingReport;
     private void OnSessionEnded(GameSession s)
     {
-        try { _pendingReport = s; } catch { }
+        try
+        {
+            // 过短会话（误判进程 / 快速重启游戏）只入库不弹报告，避免报告窗口堆积
+            if (s.Duration.TotalSeconds >= 60) _pendingReport = s;
+        }
+        catch { }
     }
 
     private string _lastReportId = "";
@@ -301,7 +318,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(AppContext.BaseDirectory, "popup_error.txt"), ex.ToString(), System.Text.Encoding.UTF8); } catch { }
-            try { StatusText.Text = "性能报告弹窗失败：" + ex.Message; } catch { }
+            try { StatusText.Text = Localization.F("Report.PopupFail", ex.Message); } catch { }
         }
     }
     private void SessionsRefreshBtn_Click(object sender, RoutedEventArgs e) => RefreshSessions();
@@ -313,8 +330,8 @@ public partial class MainWindow : Window
         {
             var sessions = SessionStore.LoadAll();
             SessionSummaryText.Text = sessions.Count > 0
-                ? $"共 {sessions.Count} 次会话 · 最近 {sessions[0].GameName} {sessions[0].Start:MM-dd HH:mm}"
-                : "暂无会话记录 —— 玩一局游戏后这里会出现性能报告";
+                ? Localization.F("Ses.Summary", sessions.Count, sessions[0].GameName, sessions[0].Start.ToString("MM-dd HH:mm", CultureInfo.InvariantCulture))
+                : Localization.T("Ses.Empty");
             SessionsHost.Children.Clear();
             foreach (var s in sessions.Take(50))
             {
@@ -322,7 +339,7 @@ public partial class MainWindow : Window
                 SessionsHost.Children.Add(card);
             }
         }
-        catch (Exception ex) { SessionSummaryText.Text = "加载失败：" + ex.Message; }
+        catch (Exception ex) { SessionSummaryText.Text = Localization.F("Ses.Fail", ex.Message); }
     }
 
     private Border BuildSessionCard(GameSession s)
@@ -345,14 +362,14 @@ public partial class MainWindow : Window
         var head = new DockPanel();
         var left = new StackPanel { Orientation = Orientation.Horizontal };
         left.Children.Add(new TextBlock { Text = s.GameName, FontSize = 15, FontWeight = FontWeights.Bold, Foreground = (Brush)FindResource("TextPrimary"), VerticalAlignment = VerticalAlignment.Center });
-        left.Children.Add(new TextBlock { Text = $"　{s.Start:yyyy-MM-dd HH:mm:ss} → {s.End:HH:mm:ss} · 时长 {s.DurationText} · {s.Resolution}", FontSize = 11, Foreground = (Brush)FindResource("TextSecondary"), VerticalAlignment = VerticalAlignment.Center });
+        left.Children.Add(new TextBlock { Text = Localization.F("Ses.Head", s.Start.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), s.End.ToString("HH:mm:ss", CultureInfo.InvariantCulture), s.DurationText, s.Resolution), FontSize = 11, Foreground = (Brush)FindResource("TextSecondary"), VerticalAlignment = VerticalAlignment.Center });
         head.Children.Add(left);
         var btns = new StackPanel { Orientation = Orientation.Horizontal };
-        var delBtn = new Button { Content = "删除", Style = (Style)FindResource("OverlayToggle") };
+        var delBtn = new Button { Content = Localization.T("Ses.Delete"), Style = (Style)FindResource("OverlayToggle") };
         delBtn.Click += (_, _) => { SessionStore.Delete(s); RefreshSessions(); };
-        var detail2Btn = new Button { Content = "详情 2.0", Style = (Style)FindResource("OverlayToggle"), Margin = new Thickness(0, 0, 6, 0) };
+        var detail2Btn = new Button { Content = Localization.T("Ses.Detail2"), Style = (Style)FindResource("OverlayToggle"), Margin = new Thickness(0, 0, 6, 0) };
         detail2Btn.Click += (_, _) => new SessionDetailWindow(s).Show();
-        var detailBtn = new Button { Content = "详情", Style = (Style)FindResource("OverlayToggle"), Margin = new Thickness(0, 0, 6, 0) };
+        var detailBtn = new Button { Content = Localization.T("Ses.Detail"), Style = (Style)FindResource("OverlayToggle"), Margin = new Thickness(0, 0, 6, 0) };
         detailBtn.Click += (_, _) => new SessionReportWindow(s).Show();
         btns.Children.Add(delBtn);
         btns.Children.Add(detail2Btn);
@@ -364,16 +381,16 @@ public partial class MainWindow : Window
 
         // 行 2：四指标横排（FPS/CPU/GPU/内存）
         var stats = new UniformGrid { Columns = 4, Margin = new Thickness(0, 10, 0, 4) };
-        AddCardStat(stats, "平均 FPS", s.FpsAvg > 0 ? s.FpsAvg.ToString("F1") : "--", "AccentOrange");
-        AddCardStat(stats, "CPU 平均/峰值", double.IsNaN(s.CpuLoadAvg) ? "--" : $"{s.CpuLoadAvg:F0}% / {s.CpuLoadMax:F0}%", "AccentGreen");
-        AddCardStat(stats, "GPU 平均/峰值", double.IsNaN(s.GpuLoadAvg) ? "--" : $"{s.GpuLoadAvg:F0}% / {s.GpuLoadMax:F0}%", "AccentPurple");
-        AddCardStat(stats, "内存峰值", s.RamMaxGb > 0 ? $"{s.RamMaxGb:F1} GB" : "--", "AccentBlue");
+        AddCardStat(stats, Localization.T("Ses.AvgFps"), s.FpsAvg > 0 ? s.FpsAvg.ToString("F1", CultureInfo.InvariantCulture) : "--", "AccentOrange");
+        AddCardStat(stats, Localization.T("Ses.CpuAvgPeak"), double.IsNaN(s.CpuLoadAvg) ? "--" : $"{s.CpuLoadAvg:F0}% / {s.CpuLoadMax:F0}%", "AccentGreen");
+        AddCardStat(stats, Localization.T("Ses.GpuAvgPeak"), double.IsNaN(s.GpuLoadAvg) ? "--" : $"{s.GpuLoadAvg:F0}% / {s.GpuLoadMax:F0}%", "AccentPurple");
+        AddCardStat(stats, Localization.T("Ses.RamPeak"), s.RamMaxGb > 0 ? $"{s.RamMaxGb:F1} GB" : "--", "AccentBlue");
         Grid.SetRow(stats, 1);
         root.Children.Add(stats);
 
         // 行 3：1% Low / 0.1% Low / 帧总数
         var foot = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
-        foot.Children.Add(new TextBlock { Text = $"1% Low {s.FpsOneLow:F1} · 0.1% Low {s.FpsPointOneLow:F1} · 总帧 {s.FrameTotal:N0}", FontSize = 11, Foreground = (Brush)FindResource("TextSecondary") });
+        foot.Children.Add(new TextBlock { Text = Localization.F("Ses.Foot", s.FpsOneLow.ToString("F1", CultureInfo.InvariantCulture), s.FpsPointOneLow.ToString("F1", CultureInfo.InvariantCulture), s.FrameTotal.ToString("N0", CultureInfo.InvariantCulture)), FontSize = 11, Foreground = (Brush)FindResource("TextSecondary") });
         Grid.SetRow(foot, 2);
         root.Children.Add(foot);
 
@@ -395,15 +412,26 @@ public partial class MainWindow : Window
     {
         if (PageOverview == null) return;
         var rb = (RadioButton)sender;
-        string tab = rb.Content.ToString()!;
-        PageOverview.Visibility = tab == "概览" ? Visibility.Visible : Visibility.Collapsed;
-        PageDetails.Visibility = tab == "硬件详情" ? Visibility.Visible : Visibility.Collapsed;
-        PageCharts.Visibility = tab == "实时曲线" ? Visibility.Visible : Visibility.Collapsed;
-        PageSessions.Visibility = tab == "性能统计" ? Visibility.Visible : Visibility.Collapsed;
-        PageFreeGames.Visibility = tab == "喜加一" ? Visibility.Visible : Visibility.Collapsed;
-        PageSettings.Visibility = tab == "设置" ? Visibility.Visible : Visibility.Collapsed;
-        if (tab == "性能统计") RefreshSessions();
-        if (tab == "喜加一" && _freeGames == null) _ = LoadFreeGamesAsync();
+        string tab = rb.Tag?.ToString() ?? "";
+        PageOverview.Visibility = tab == "overview" ? Visibility.Visible : Visibility.Collapsed;
+        PageDetails.Visibility = tab == "details" ? Visibility.Visible : Visibility.Collapsed;
+        PageCharts.Visibility = tab == "charts" ? Visibility.Visible : Visibility.Collapsed;
+        PageSessions.Visibility = tab == "sessions" ? Visibility.Visible : Visibility.Collapsed;
+        PageFreeGames.Visibility = tab == "freegames" ? Visibility.Visible : Visibility.Collapsed;
+        PageSettings.Visibility = tab == "settings" ? Visibility.Visible : Visibility.Collapsed;
+        if (tab == "sessions") RefreshSessions();
+        if (tab == "freegames" && _freeGames == null) _ = LoadFreeGamesAsync();
+    }
+
+    /// <summary>语言切换后重绘 C# 动态构造的界面部分。</summary>
+    private void ApplyLanguage()
+    {
+        try { UpdateUi(); } catch { }
+        try { BuildDetailsPanel(); } catch { }
+        RefreshSessions();
+        if (_freeGames != null) { try { RenderFreeGames(); } catch { } }
+        if (_tile != null) { try { _tile.Rebuild(); } catch { } }
+        if (_tbWidget != null) { try { _tbWidget.ApplyLanguage(); } catch { } }
     }
 
     // ================= 喜加一（限免情报） =================
@@ -415,7 +443,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            FreeStatusText.Text = "正在从 Epic / Steam 官方接口获取限免情报…";
+            FreeStatusText.Text = Localization.T("Free.Loading");
             FreeRefreshBtn.IsEnabled = false;
             _freeGames = new List<FreeGame>();
             RenderFreeGames();
@@ -433,11 +461,11 @@ public partial class MainWindow : Window
                 var epic = await epicTask.ConfigureAwait(true);
                 _freeGames.AddRange(epic);
                 RenderFreeGames();
-                if (epic.Count == 0) notes += "Epic 本期无活动/解析为空；";
+                if (epic.Count == 0) notes += Localization.T("Free.EpicEmpty");
             }
             catch (Exception ex)
             {
-                notes += "Epic 获取失败（" + ex.Message + "）；";
+                notes += Localization.F("Free.EpicFailed", ex.Message);
                 RenderFreeGames();
             }
 
@@ -448,11 +476,11 @@ public partial class MainWindow : Window
                 var steam = await steamTask2.ConfigureAwait(true);
                 _freeGames.AddRange(steam);
                 RenderFreeGames();
-                if (steam.Count == 0) notes += "Steam 当前期免为空；";
+                if (steam.Count == 0) notes += Localization.T("Free.SteamEmpty");
             }
             catch (Exception ex)
             {
-                notes += "Steam 不可达已跳过（网络限制）；";
+                notes += Localization.T("Free.SteamUnreachable");
             }
 
             try
@@ -460,20 +488,20 @@ public partial class MainWindow : Window
                 var gog = await gogTask.ConfigureAwait(true);
                 if (gog.Count > 0) { _freeGames.AddRange(gog); RenderFreeGames(); }
             }
-            catch { notes += "GOG 特价获取失败；"; }
+            catch { notes += Localization.T("Free.GogFailed"); }
 
             try
             {
                 var hum = await humbleTask.ConfigureAwait(true);
                 if (hum.Count > 0) { _freeGames.AddRange(hum); RenderFreeGames(); }
             }
-            catch { notes += "Humble 特价获取失败；"; }
+            catch { notes += Localization.T("Free.HumbleFailed"); }
 
-            FreeStatusText.Text = $"更新于 {DateTime.Now:HH:mm:ss} · " + (notes.Length == 0 ? "全部数据源正常" : notes);
+            FreeStatusText.Text = Localization.F("Free.Updated", DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), (notes.Length == 0 ? Localization.T("Free.AllOk") : notes));
         }
         catch (Exception ex)
         {
-            FreeStatusText.Text = "获取失败：" + ex.Message + "（检查网络后点右上角「刷新」重试）";
+            FreeStatusText.Text = Localization.F("Free.FetchFailed", ex.Message);
         }
         finally
         {
@@ -486,7 +514,7 @@ public partial class MainWindow : Window
         FreeGamesHost.Children.Clear();
         var list = _freeGames ?? new List<FreeGame>();
         int active = list.Count(g => !g.Upcoming);
-        FreeCountText.Text = list.Count == 0 ? "当前没有可领取的限免" : $"共 {list.Count} 款（可领 {active}，即将开始 {list.Count - active}）";
+        FreeCountText.Text = list.Count == 0 ? Localization.T("Free.Empty") : Localization.F("Free.Count", list.Count, active, list.Count - active);
 
         foreach (var g in list)
         {
@@ -498,7 +526,7 @@ public partial class MainWindow : Window
         {
             FreeGamesHost.Children.Add(new TextBlock
             {
-                Text = "当前接口未返回限免游戏，可能本期已结束，稍后点「刷新」再试。",
+                Text = Localization.T("Free.NoData"),
                 Foreground = (Brush)FindResource("TextSecondary"),
                 FontSize = 12.5,
                 Margin = new Thickness(2, 8, 0, 0),
@@ -524,7 +552,7 @@ public partial class MainWindow : Window
         {
             Background = (Brush)FindResource("BgChip"),
             CornerRadius = new CornerRadius(6),
-            Child = new TextBlock { Text = "加载中…", Foreground = (Brush)FindResource("TextSecondary"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, FontSize = 11 },
+            Child = new TextBlock { Text = Localization.T("Free.CoverLoading"), Foreground = (Brush)FindResource("TextSecondary"), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, FontSize = 11 },
         };
         Grid.SetColumn(coverHost, 0);
         grid.Children.Add(coverHost);
@@ -535,7 +563,7 @@ public partial class MainWindow : Window
         mid.Children.Add(new TextBlock { Text = g.Title, FontSize = 16, FontWeight = FontWeights.Bold, Foreground = (Brush)FindResource("TextPrimary"), TextTrimming = TextTrimming.CharacterEllipsis });
         mid.Children.Add(new TextBlock
         {
-            Text = $"平台 {g.Platform}" + (string.IsNullOrEmpty(g.Seller) ? "" : $"　·　{g.Seller}"),
+            Text = Localization.F("Free.Platform", g.Platform) + (string.IsNullOrEmpty(g.Seller) ? "" : $"　·　{g.Seller}"),
             FontSize = 12,
             Foreground = (Brush)FindResource("TextSecondary"),
             Margin = new Thickness(0, 6, 0, 0),
@@ -544,18 +572,18 @@ public partial class MainWindow : Window
         string priceTxt = g.FmtPrice.Length > 0 ? g.FmtPrice : (g.OriginPriceCents > 0 ? "¥" + (g.OriginPriceCents / 100.0).ToString("F2", CultureInfo.InvariantCulture) : "");
         string timeTxt;
         if (g.Upcoming && g.StartLocal.HasValue)
-            timeTxt = $"即将开始：{g.StartLocal:MM-dd HH:mm} 起免费";
+            timeTxt = Localization.F("Free.Upcoming", g.StartLocal.Value.ToString("MM-dd HH:mm"));
         else if (g.EndLocal.HasValue)
         {
             var left = g.EndLocal.Value - DateTime.Now;
             timeTxt = left > TimeSpan.Zero
-                ? $"免费领取截止：{g.EndLocal:MM-dd HH:mm}（剩 {(int)left.TotalDays} 天 {left.Hours} 小时）"
-                : "本期已结束";
+                ? Localization.F("Free.Deadline", g.EndLocal.Value.ToString("MM-dd HH:mm"), (int)left.TotalDays, left.Hours)
+                : Localization.T("Free.Ended");
         }
         else if (g.Platform is "GOG" or "Humble")
-            timeTxt = "特价进行中（价格以商店页为准）";
+            timeTxt = Localization.T("Free.DealRunning");
         else
-            timeTxt = "限免进行中（截止时间以商店页为准）";
+            timeTxt = Localization.T("Free.FreeRunning");
 
         mid.Children.Add(new TextBlock { Text = timeTxt, FontSize = 12, Foreground = g.Upcoming ? (Brush)FindResource("AccentBlue") : (Brush)FindResource("AccentGreen"), Margin = new Thickness(0, 6, 0, 0) });
         if (priceTxt.Length > 0)
@@ -578,7 +606,7 @@ public partial class MainWindow : Window
         bool isDeal = g.Platform is "GOG" or "Humble";
         var btn = new Button
         {
-            Content = isDeal ? "去购买 ↗" : "本内领取 ↗",
+            Content = isDeal ? Localization.T("Free.Buy") : Localization.T("Free.Claim"),
             Style = (Style)FindResource("OverlayToggle"),
             Background = (Brush)FindResource("AccentBlue"),
             Foreground = Brushes.White,
@@ -587,7 +615,7 @@ public partial class MainWindow : Window
             Padding = new Thickness(18, 9, 18, 9),
             VerticalAlignment = VerticalAlignment.Center,
             Cursor = System.Windows.Input.Cursors.Hand,
-            ToolTip = "在内嵌浏览器中打开；登录一次后 Cookie 保存本机，直接在页面点「获取」",
+            ToolTip = Localization.T("Tip.Claim"),
         };
         btn.Click += (_, _) =>
         {
@@ -604,7 +632,7 @@ public partial class MainWindow : Window
         btnHost.Children.Add(btn);
         var extLink = new TextBlock
         {
-            Text = "或用系统浏览器打开 ↗",
+            Text = Localization.T("Free.ExternalOpen"),
             FontSize = 10.5,
             Foreground = (Brush)FindResource("AccentBlue"),
             Margin = new Thickness(0, 6, 0, 0),
@@ -614,7 +642,7 @@ public partial class MainWindow : Window
         extLink.MouseLeftButtonDown += (_, _) =>
         {
             try { Process.Start(new ProcessStartInfo(g.Url) { UseShellExecute = true }); }
-            catch (Exception ex) { FreeStatusText.Text = "打开浏览器失败：" + ex.Message; }
+            catch (Exception ex) { FreeStatusText.Text = Localization.F("Free.OpenBrowserFailed", ex.Message); }
         };
         btnHost.Children.Add(extLink);
         Grid.SetColumn(btnHost, 2);
@@ -633,7 +661,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            FreeStatusText.Text = "打开内嵌浏览器失败：" + ex.Message;
+            FreeStatusText.Text = Localization.F("Free.OpenEmbedFailed", ex.Message);
         }
     }
 
@@ -673,24 +701,33 @@ public partial class MainWindow : Window
 
     private void BuildDetailsPanel()
     {
+        // 重建前清空旧内容（语言切换时会整块重建）
+        DetailGrid.Children.Clear();
+        TempBarsHost.Children.Clear();
+        StGrid.Children.Clear();
+        _detailValues.Clear();
+        _tempBars.Clear();
+        while (StGrid.RowDefinitions.Count > 0) StGrid.RowDefinitions.RemoveAt(0);
+        while (DetailGrid.RowDefinitions.Count > 0) DetailGrid.RowDefinitions.RemoveAt(0);
+
         BuildStaticPanel();
         BuildTempBars();
-        AddDetailSection("处理器 CPU", new[]
+        AddDetailSection(Localization.T("Sec.Cpu"), new[]
         {
-            ("CPU 占用", "cpu.load"), ("CPU 温度", "cpu.temp"), ("最大核心频率", "cpu.clk"), ("封装功耗", "cpu.pwr"),
+            (Localization.T("D.CpuLoad"), "cpu.load"), (Localization.T("D.CpuTemp"), "cpu.temp"), (Localization.T("D.CpuClk"), "cpu.clk"), (Localization.T("D.CpuPwr"), "cpu.pwr"),
         });
-        AddDetailSection("显卡 GPU", new[]
+        AddDetailSection(Localization.T("Sec.Gpu"), new[]
         {
-            ("GPU 占用", "gpu.load"), ("GPU 温度", "gpu.temp"),
-            ("核心频率", "gpu.coreclk"), ("显存频率", "gpu.memclk"), ("板卡功耗", "gpu.pwr"), ("风扇转速", "gpu.fan"),
-            ("显存已用", "gpu.mem"), ("显存总量", "gpu.memtotal"),
+            (Localization.T("D.GpuLoad"), "gpu.load"), (Localization.T("D.GpuTemp"), "gpu.temp"),
+            (Localization.T("D.GpuCoreClk"), "gpu.coreclk"), (Localization.T("D.GpuMemClk"), "gpu.memclk"), (Localization.T("D.GpuPwr"), "gpu.pwr"), (Localization.T("D.GpuFan"), "gpu.fan"),
+            (Localization.T("D.GpuMemUsed"), "gpu.mem"), (Localization.T("D.GpuMemTotal"), "gpu.memtotal"),
         });
-        AddDetailSection("内存 · 磁盘 · 网络 · 电池", new[]
+        AddDetailSection(Localization.T("Sec.Misc"), new[]
         {
-            ("内存已用", "ram.used"), ("内存总量", "ram.total"), ("内存占用率", "ram.pct"),
-            ("磁盘读取", "disk.read"), ("磁盘写入", "disk.write"), ("磁盘温度", "disk.temp"),
-            ("下载速率", "net.down"), ("上传速率", "net.up"),
-            ("电池电量", "bat.pct"), ("电池功率", "bat.pw"), ("电源状态", "bat.ac"),
+            (Localization.T("D.RamUsed"), "ram.used"), (Localization.T("D.RamTotal"), "ram.total"), (Localization.T("D.RamPct"), "ram.pct"),
+            (Localization.T("D.DiskRead"), "disk.read"), (Localization.T("D.DiskWrite"), "disk.write"), (Localization.T("D.DiskTemp"), "disk.temp"),
+            (Localization.T("D.NetDown"), "net.down"), (Localization.T("D.NetUp"), "net.up"),
+            (Localization.T("D.BatPct"), "bat.pct"), (Localization.T("D.BatPw"), "bat.pw"), (Localization.T("D.BatAc"), "bat.ac"),
         });
     }
 
@@ -702,17 +739,17 @@ public partial class MainWindow : Window
         {
             var si = App.Engine.Static;
             if (si == null) return;
-            StOsText.Text = si.OsName;
+            StOsText.Text = si.OsDisplay;
             StMachineText.Text = si.MachineName;
             var rows = new List<(string Icon, string Label, string Value)>
             {
-                ("Ⓒ", "处理器", si.CpuName + (si.CpuThreads > 0 ? $"　{si.CpuCores} 核心数 / {si.CpuThreads} 线程" : "")),
-                ("Ⓖ", "显卡", si.GpuName + (string.IsNullOrEmpty(si.GpuVram) ? "" : $"　显存 {si.GpuVram}")),
-                ("Ⓜ", "主板", si.Motherboard),
-                ("Ⓓ", "硬盘", si.DiskModel + (string.IsNullOrEmpty(si.DiskCapacity) ? "" : $"　{si.DiskCapacity}")),
-                ("Ⓢ", "显示器", si.DisplayInfo),
-                ("Ⓡ", "内存", si.RamInfo),
-                ("Ⓑ", "电池", string.IsNullOrEmpty(si.BatteryInfo) ? "未检测到电池" : si.BatteryInfo),
+                ("Ⓒ", Localization.T("St.Cpu"), si.CpuName + (si.CpuThreads > 0 ? Localization.F("St.Cores", si.CpuCores, si.CpuThreads) : "")),
+                ("Ⓖ", Localization.T("St.Gpu"), si.GpuName + (string.IsNullOrEmpty(si.GpuVram) ? "" : Localization.F("St.Vram", si.GpuVram))),
+                ("Ⓜ", Localization.T("St.Mb"), si.Motherboard),
+                ("Ⓓ", Localization.T("St.Disk"), si.DiskModel + (string.IsNullOrEmpty(si.DiskCapacity) ? "" : $"　{si.DiskCapacity}")),
+                ("Ⓢ", Localization.T("St.Display"), si.DisplayInfo),
+                ("Ⓡ", Localization.T("St.Ram"), si.RamInfo),
+                ("Ⓑ", Localization.T("St.Battery"), string.IsNullOrEmpty(si.BatteryDisplay) ? Localization.T("St.NoBattery") : si.BatteryDisplay),
             };
             int r = 0;
             foreach (var row in rows)
@@ -747,11 +784,11 @@ public partial class MainWindow : Window
 
     private void BuildTempBars()
     {
-        AddTempBar("cpu.temp", "处理器温度", 100, _orange);
-        AddTempBar("gpu.temp", "显卡温度", 100, _green);
-        AddTempBar("disk.temp", "硬盘温度", 100, _green);
-        AddTempBar("ram.pct", "内存占用", 100, _blue);
-        AddTempBar("gpu.load", "显卡占用", 100, _blue);
+        AddTempBar("cpu.temp", Localization.T("Tb.CpuTemp"), 100, _orange);
+        AddTempBar("gpu.temp", Localization.T("Tb.GpuTemp"), 100, _green);
+        AddTempBar("disk.temp", Localization.T("Tb.DiskTemp"), 100, _green);
+        AddTempBar("ram.pct", Localization.T("Tb.RamPct"), 100, _blue);
+        AddTempBar("gpu.load", Localization.T("Tb.GpuLoad"), 100, _blue);
     }
 
     private void AddTempBar(string key, string label, double max, Brush color)
@@ -879,12 +916,12 @@ public partial class MainWindow : Window
         // 顶栏徽章 + 独占全屏警告
         bool game = !string.IsNullOrEmpty(s.GameName);
         ChipGameDot.Fill = game ? _green : _gray;
-        ChipGameText.Text = game ? $"{s.GameName} · PID {s.GamePid} · {s.GameSource}" : "未检测到游戏";
+        ChipGameText.Text = game ? Localization.F("Main.GameChip", s.GameName, s.GamePid, Localization.GameSource(s.GameSource)) : Localization.T("Main.NoGame");
         ChipGameText.Foreground = game ? (Brush)FindResource("TextPrimary") : _gray;
-        FpsCardTitle.Text = game ? $"FPS · {s.GameName}" : "FPS · 帧率";
+        FpsCardTitle.Text = game ? $"FPS · {s.GameName}" : Localization.T("Ov.FpsTitle");
         StatusText.Text = s.ExclusiveFullscreen
-            ? "⚠ 游戏处于独占全屏模式，悬浮条无法覆盖 —— 请在游戏设置改为「无边框全屏/全屏窗口化」"
-            : $"引擎运行中 · 游戏检测 1s · 硬件轮询 {_settings.HwPollMs}ms · UI 刷新 200ms · 快照 {s.Time:HH:mm:ss}";
+            ? Localization.T("Status.ExclFullscreen")
+            : Localization.F("Status.Running", _settings.HwPollMs, s.Time.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
 
         // GPU
         GpuTempText.Text = F(s.GpuTemp, "F0");
@@ -911,7 +948,7 @@ public partial class MainWindow : Window
         // CPU
         CpuTempText.Text = F(s.CpuTemp, "F0");
         CpuTempText.Foreground = ColorFor(s.CpuTemp, 75, 90);
-        CpuTempText.ToolTip = string.IsNullOrEmpty(s.CpuTempSource) ? null : "温度来源：" + s.CpuTempSource;
+        CpuTempText.ToolTip = string.IsNullOrEmpty(s.CpuTempSource) ? null : Localization.F("Cpu.TempSrc", Localization.CpuTempSource(s.CpuTempSource));
         SetLoadBar(CpuLoadBar, CpuLoadText, s.CpuLoad);
         CpuLoadPctText.Text = double.IsNaN(s.CpuLoad) ? "-- %" : s.CpuLoad.ToString("F0", CultureInfo.InvariantCulture) + " %";
         if (!double.IsNaN(s.RamUsedGb) && !double.IsNaN(s.RamTotalGb) && s.RamTotalGb > 0)
@@ -923,7 +960,7 @@ public partial class MainWindow : Window
             RamText.Text = $"{s.RamUsedGb:F1} / {s.RamTotalGb:F0} GB";
         }
         else { RamBar.Value = 0; RamText.Text = "N/A"; }
-        CpuPowerText.Text = double.IsNaN(s.CpuPower) ? "" : "封装功耗 " + s.CpuPower.ToString("F1", CultureInfo.InvariantCulture) + " W";
+        CpuPowerText.Text = double.IsNaN(s.CpuPower) ? "" : Localization.F("Cpu.PwrVal", s.CpuPower.ToString("F1", CultureInfo.InvariantCulture));
         CpuClkText.Text = double.IsNaN(s.CpuMaxClock) ? "" : s.CpuMaxClock.ToString("F0", CultureInfo.InvariantCulture) + " MHz";
 
         // FPS
@@ -941,20 +978,25 @@ public partial class MainWindow : Window
 
         // 运行状态
         if (!game)
-            RunStateText.Text = "等待游戏启动…（白名单或全屏窗口自动识别，无需手动操作）";
+            RunStateText.Text = Localization.T("Run.Waiting2");
         else if (!s.PresentMonRunning)
-            RunStateText.Text = $"已绑定 {s.GameName}，PresentMon 启动中…" + (string.IsNullOrEmpty(s.PmExitInfo) ? "" : $"（{s.PmExitInfo}）");
+            RunStateText.Text = Localization.F("Run.Binding", s.GameName) + (string.IsNullOrEmpty(s.PmExitInfo) ? "" : Localization.F("Run.PmExitInfo", s.PmExitInfo switch
+            {
+                "PM已退出" => Localization.T("Pm.Exited"),
+                "PM被拒" => Localization.T("Pm.Denied"),
+                _ => s.PmExitInfo,
+            }));
         else if (!hasFrames)
-            RunStateText.Text = $"PresentMon 已捕获 {s.GameName}，等待首帧…（stdout 行数 {s.PmLines}，有效帧 {s.PmFrames}）——若行数为 0 说明 PM 无输出，若行数大但帧为 0 则是解析丢帧";
+            RunStateText.Text = Localization.F("Run.WaitingFrames", s.GameName, s.PmLines, s.PmFrames);
         else
-            RunStateText.Text = $"采集中：{s.GameName} · 窗口 {s.FrameCount} 帧 · 最大帧耗时 {s.MaxFrameMs:F1} ms";
+            RunStateText.Text = Localization.F("Run.Collecting", s.GameName, s.FrameCount, s.MaxFrameMs.ToString("F1", CultureInfo.InvariantCulture));
 
         // 网络/磁盘/电池
         NetDownText.Text = FormatRate(s.DownKbps);
         NetUpText.Text = FormatRate(s.UpKbps);
         DiskText.Text = double.IsNaN(s.DiskReadKbs) && double.IsNaN(s.DiskWriteKbs)
             ? "N/A"
-            : $"读 {Kbs(s.DiskReadKbs)} / 写 {Kbs(s.DiskWriteKbs)}";
+            : Localization.F("Cpu.DiskRW", Kbs(s.DiskReadKbs), Kbs(s.DiskWriteKbs));
         DiskTempText.Text = Temp(s.DiskTemp);
         BatteryText.Text = double.IsNaN(s.BatteryPct)
             ? "N/A"
@@ -988,11 +1030,11 @@ public partial class MainWindow : Window
             RenderChart(RamChart, _ramHist, 100);
             RenderChart(GpuMemChart, _gpuMemHist, 100);
             FpsRangeText.Text = _fpsHist.Count > 0
-                ? $"峰值 {fpsPeak:F0} · 屏幕刷新率 {DetectRefreshRate():F0}Hz · 区间上限 {fpsMax:F0}"
-                : $"屏幕刷新率 {DetectRefreshRate():F0}Hz · 区间上限 {fpsMax:F0}";
+                ? Localization.F("Chart.RangePeak", fpsPeak.ToString("F0", CultureInfo.InvariantCulture), DetectRefreshRate().ToString("F0", CultureInfo.InvariantCulture), fpsMax.ToString("F0", CultureInfo.InvariantCulture))
+                : Localization.F("Chart.RangeRefresh", DetectRefreshRate().ToString("F0", CultureInfo.InvariantCulture), fpsMax.ToString("F0", CultureInfo.InvariantCulture));
         }
 
-        StatusText.Text = $"引擎运行中 · 游戏检测 1s · 硬件轮询 {_settings.HwPollMs}ms · UI 刷新 200ms · 快照 {s.Time:HH:mm:ss}";
+        StatusText.Text = Localization.F("Status.Running", _settings.HwPollMs, s.Time.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
     }
 
     // ================= 桌面监控磁贴 =================
@@ -1043,7 +1085,7 @@ public partial class MainWindow : Window
             {
                 _tile = new TileWindow(_settings);
                 _tile.Show();
-                TileBtn.Content = "桌面磁贴：开";
+                TileBtn.Content = Localization.T("Tile.BtnOn");
             }
             if (_settings.TileShowInTaskbar)
             {
@@ -1055,7 +1097,7 @@ public partial class MainWindow : Window
         {
             _settings.TileOn = false;
             _settings.Save();
-            MessageBox.Show(this, "桌面磁贴启动失败（已回退关闭状态）：" + ex.Message, "Game Monitor", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, Localization.F("Tile.FailStart", ex.Message), Localization.T("App.Title"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -1067,14 +1109,14 @@ public partial class MainWindow : Window
         {
             _tile = new TileWindow(_settings);
             _tile.Show();
-            TileBtn.Content = "桌面磁贴：开";
+            TileBtn.Content = Localization.T("Tile.BtnOn");
             _settings.TileOn = true;
         }
         else
         {
             _tile.Close();
             _tile = null;
-            TileBtn.Content = "桌面磁贴：关";
+            TileBtn.Content = Localization.T("Tile.BtnOff");
             _settings.TileOn = false;
             _settings.Save();
         }
@@ -1096,7 +1138,7 @@ public partial class MainWindow : Window
         {
             _overlay = new OverlayWindow(_settings);
             _overlay.Show();
-            OverlayBtn.Content = "游戏内悬浮条：开（Ctrl+Alt+O 解锁）";
+            OverlayBtn.Content = Localization.T("Overlay.BtnOn");
             _settings.OsdOn = true;
         }
         else CloseOverlay();
@@ -1107,7 +1149,7 @@ public partial class MainWindow : Window
         if (_overlay == null) return;
         try { _overlay.Close(); } catch { }
         _overlay = null;
-        OverlayBtn.Content = "游戏内悬浮条：关";
+        OverlayBtn.Content = Localization.T("Overlay.BtnOff");
         _settings.OsdOn = false;
         _settings.Save();
     }

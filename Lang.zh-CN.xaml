@@ -1,0 +1,352 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ============ 界面本地化：简体中文（默认） ============ -->
+
+    <!-- 品牌 / 顶层 -->
+    <sys:String x:Key="Main.Title">Game Monitor · 游戏硬件监控</sys:String>
+    <sys:String x:Key="Main.NoGame">未检测到游戏</sys:String>
+    <sys:String x:Key="Main.GameChip">{0} · PID {1} · {2}</sys:String>
+    <sys:String x:Key="Main.PinNone">请先从下拉框选择要固定的进程</sys:String>
+    <sys:String x:Key="Status.Starting">引擎运行中</sys:String>
+    <sys:String x:Key="Status.Running">引擎运行中 · 游戏检测 1s · 硬件轮询 {0}ms · UI 刷新 200ms · 快照 {1}</sys:String>
+    <sys:String x:Key="Status.ExclFullscreen">⚠ 游戏处于独占全屏模式，悬浮条无法覆盖 —— 请在游戏设置改为「无边框全屏/全屏窗口化」</sys:String>
+    <sys:String x:Key="Status.SnapshotSaved">快照已保存: {0}</sys:String>
+    <sys:String x:Key="Status.SnapshotFail">快照失败: {0}</sys:String>
+
+    <!-- 顶栏按钮 / 提示 -->
+    <sys:String x:Key="Tile.BtnOn">桌面磁贴：开</sys:String>
+    <sys:String x:Key="Tile.BtnOff">桌面磁贴：关</sys:String>
+    <sys:String x:Key="Tip.TileBtn">桌面监控磁贴：CPU/GPU/显存/内存/网络；支持穿透、任务栏显示、主窗最小化自动折叠</sys:String>
+    <sys:String x:Key="Overlay.BtnOn">游戏内悬浮条：开（Ctrl+Alt+O 解锁）</sys:String>
+    <sys:String x:Key="Overlay.BtnOff">游戏内悬浮条：关</sys:String>
+    <sys:String x:Key="Tip.OverlayBtn">OSD 悬浮条；锁定时鼠标穿透，Ctrl+Alt+O 解锁拖动</sys:String>
+
+    <!-- Tab -->
+    <sys:String x:Key="Tab.Overview">概览</sys:String>
+    <sys:String x:Key="Tab.Details">硬件详情</sys:String>
+    <sys:String x:Key="Tab.Charts">实时曲线</sys:String>
+    <sys:String x:Key="Tab.Sessions">性能统计</sys:String>
+    <sys:String x:Key="Tab.FreeGames">喜加一</sys:String>
+    <sys:String x:Key="Tab.Settings">设置</sys:String>
+
+    <!-- Tab 1 概览 -->
+    <sys:String x:Key="Ov.GpuTitle">GPU · 显卡</sys:String>
+    <sys:String x:Key="Ov.CpuTitle">CPU · 处理器</sys:String>
+    <sys:String x:Key="Ov.FpsTitle">FPS · 帧率</sys:String>
+    <sys:String x:Key="Ov.GpuLoad">GPU 占用</sys:String>
+    <sys:String x:Key="Ov.Vram">显存</sys:String>
+    <sys:String x:Key="Ov.CpuLoad">CPU 占用</sys:String>
+    <sys:String x:Key="Ov.Ram">内存</sys:String>
+    <sys:String x:Key="Ov.FrameTime">帧时间</sys:String>
+    <sys:String x:Key="Ov.FrameCount">采集帧数（窗口）</sys:String>
+    <sys:String x:Key="Ov.SnapTime">数据快照</sys:String>
+    <sys:String x:Key="Ov.FpsStats">帧率统计 · 滑动窗口 1000 帧</sys:String>
+    <sys:String x:Key="Ov.AvgFps">平均 FPS</sys:String>
+    <sys:String x:Key="Ov.FpsNow">瞬时 FPS</sys:String>
+    <sys:String x:Key="Ov.RunState">运行状态</sys:String>
+    <sys:String x:Key="Ov.NetDiskBatt">网络 · 磁盘 · 电池</sys:String>
+    <sys:String x:Key="Ov.Download">下载</sys:String>
+    <sys:String x:Key="Ov.Upload">上传</sys:String>
+    <sys:String x:Key="Ov.DiskIo">磁盘读写</sys:String>
+    <sys:String x:Key="Ov.DiskTemp">磁盘温度</sys:String>
+    <sys:String x:Key="Ov.Battery">电池</sys:String>
+
+    <!-- 运行状态 -->
+    <sys:String x:Key="Run.Waiting">等待游戏启动…</sys:String>
+    <sys:String x:Key="Run.Waiting2">等待游戏启动…（白名单或全屏窗口自动识别，无需手动操作）</sys:String>
+    <sys:String x:Key="Run.AutoDetectHint">自动检测：白名单 + 全屏窗口启发式；也可在「设置」里手动固定某个进程。</sys:String>
+    <sys:String x:Key="Run.Binding">已绑定 {0}，PresentMon 启动中…</sys:String>
+    <sys:String x:Key="Run.PmExitInfo">（{0}）</sys:String>
+    <sys:String x:Key="Run.WaitingFrames">PresentMon 已捕获 {0}，等待首帧…（stdout 行数 {1}，有效帧 {2}）——若行数为 0 说明 PM 无输出，若行数大但帧为 0 则是解析丢帧</sys:String>
+    <sys:String x:Key="Run.Collecting">采集中：{0} · 窗口 {1} 帧 · 最大帧耗时 {2} ms</sys:String>
+
+    <!-- Tab 2 硬件详情 -->
+    <sys:String x:Key="Det.Title">硬件信息</sys:String>
+    <sys:String x:Key="Det.Sensors">传感器 · 实时</sys:String>
+    <sys:String x:Key="Sec.Cpu">处理器 CPU</sys:String>
+    <sys:String x:Key="Sec.Gpu">显卡 GPU</sys:String>
+    <sys:String x:Key="Sec.Misc">内存 · 磁盘 · 网络 · 电池</sys:String>
+    <sys:String x:Key="St.Cpu">处理器</sys:String>
+    <sys:String x:Key="St.Gpu">显卡</sys:String>
+    <sys:String x:Key="St.Mb">主板</sys:String>
+    <sys:String x:Key="St.Disk">硬盘</sys:String>
+    <sys:String x:Key="St.Display">显示器</sys:String>
+    <sys:String x:Key="St.Ram">内存</sys:String>
+    <sys:String x:Key="St.Battery">电池</sys:String>
+    <sys:String x:Key="St.Os">系统</sys:String>
+    <sys:String x:Key="St.NoBattery">未检测到电池</sys:String>
+    <sys:String x:Key="St.OsName">{0}（{1}）</sys:String>
+    <sys:String x:Key="St.Arch64">64 位</sys:String>
+    <sys:String x:Key="St.Arch32">32 位</sys:String>
+    <sys:String x:Key="St.BatteryCap">{0} · 设计容量 {1} mWh</sys:String>
+    <sys:String x:Key="St.Cores">　{0} 核心数 / {1} 线程</sys:String>
+    <sys:String x:Key="St.Vram">　显存 {0}</sys:String>
+    <sys:String x:Key="D.CpuLoad">CPU 占用</sys:String>
+    <sys:String x:Key="D.CpuTemp">CPU 温度</sys:String>
+    <sys:String x:Key="D.CpuClk">最大核心频率</sys:String>
+    <sys:String x:Key="D.CpuPwr">封装功耗</sys:String>
+    <sys:String x:Key="D.GpuLoad">GPU 占用</sys:String>
+    <sys:String x:Key="D.GpuTemp">GPU 温度</sys:String>
+    <sys:String x:Key="D.GpuCoreClk">核心频率</sys:String>
+    <sys:String x:Key="D.GpuMemClk">显存频率</sys:String>
+    <sys:String x:Key="D.GpuPwr">板卡功耗</sys:String>
+    <sys:String x:Key="D.GpuFan">风扇转速</sys:String>
+    <sys:String x:Key="D.GpuMemUsed">显存已用</sys:String>
+    <sys:String x:Key="D.GpuMemTotal">显存总量</sys:String>
+    <sys:String x:Key="D.RamUsed">内存已用</sys:String>
+    <sys:String x:Key="D.RamTotal">内存总量</sys:String>
+    <sys:String x:Key="D.RamPct">内存占用率</sys:String>
+    <sys:String x:Key="D.DiskRead">磁盘读取</sys:String>
+    <sys:String x:Key="D.DiskWrite">磁盘写入</sys:String>
+    <sys:String x:Key="D.DiskTemp">磁盘温度</sys:String>
+    <sys:String x:Key="D.NetDown">下载速率</sys:String>
+    <sys:String x:Key="D.NetUp">上传速率</sys:String>
+    <sys:String x:Key="D.BatPct">电池电量</sys:String>
+    <sys:String x:Key="D.BatPw">电池功率</sys:String>
+    <sys:String x:Key="D.BatAc">电源状态</sys:String>
+    <sys:String x:Key="Tb.CpuTemp">处理器温度</sys:String>
+    <sys:String x:Key="Tb.GpuTemp">显卡温度</sys:String>
+    <sys:String x:Key="Tb.DiskTemp">硬盘温度</sys:String>
+    <sys:String x:Key="Tb.RamPct">内存占用</sys:String>
+    <sys:String x:Key="Tb.GpuLoad">显卡占用</sys:String>
+    <sys:String x:Key="Cpu.TempSrc">温度来源：{0}</sys:String>
+    <sys:String x:Key="Cpu.PwrVal">封装功耗 {0} W</sys:String>
+    <sys:String x:Key="Cpu.DiskRW">读 {0} / 写 {1}</sys:String>
+
+    <!-- Tab 3 实时曲线 -->
+    <sys:String x:Key="Chart.Fps">FPS 曲线（最近 120 秒）</sys:String>
+    <sys:String x:Key="Chart.CpuLoad">CPU 占用 %</sys:String>
+    <sys:String x:Key="Chart.GpuLoad">GPU 占用 %</sys:String>
+    <sys:String x:Key="Chart.CpuTemp">CPU 温度 °C</sys:String>
+    <sys:String x:Key="Chart.GpuTemp">GPU 温度 °C</sys:String>
+    <sys:String x:Key="Chart.Ram">内存占用 %</sys:String>
+    <sys:String x:Key="Chart.Vram">显存占用 %</sys:String>
+    <sys:String x:Key="Chart.RangePeak">峰值 {0} · 屏幕刷新率 {1}Hz · 区间上限 {2}</sys:String>
+    <sys:String x:Key="Chart.RangeRefresh">屏幕刷新率 {0}Hz · 区间上限 {1}</sys:String>
+    <sys:String x:Key="Chart.Legend">最大 {0} · 最小 {1} · 平均 {2} · 采样 {3} 点</sys:String>
+    <sys:String x:Key="Chart.NoData">无采样数据</sys:String>
+    <sys:String x:Key="Chart.Waiting">等待数据…</sys:String>
+
+    <!-- Tab 3.5 性能统计 -->
+    <sys:String x:Key="Ses.Title">游戏性能统计</sys:String>
+    <sys:String x:Key="Ses.Refresh">刷新</sys:String>
+    <sys:String x:Key="Ses.Summary">共 {0} 次会话 · 最近 {1} {2}</sys:String>
+    <sys:String x:Key="Ses.Empty">暂无会话记录 —— 玩一局游戏后这里会出现性能报告</sys:String>
+    <sys:String x:Key="Ses.Fail">加载失败：{0}</sys:String>
+    <sys:String x:Key="Ses.Head">　{0} → {1} · 时长 {2} · {3}</sys:String>
+    <sys:String x:Key="Ses.Delete">删除</sys:String>
+    <sys:String x:Key="Ses.Detail">详情</sys:String>
+    <sys:String x:Key="Ses.Detail2">详情 2.0</sys:String>
+    <sys:String x:Key="Ses.AvgFps">平均 FPS</sys:String>
+    <sys:String x:Key="Ses.CpuAvgPeak">CPU 平均/峰值</sys:String>
+    <sys:String x:Key="Ses.GpuAvgPeak">GPU 平均/峰值</sys:String>
+    <sys:String x:Key="Ses.RamPeak">内存峰值</sys:String>
+    <sys:String x:Key="Ses.Foot">1% Low {0} · 0.1% Low {1} · 总帧 {2}</sys:String>
+
+    <!-- Tab 5 喜加一 -->
+    <sys:String x:Key="Free.Title">限免游戏领取</sys:String>
+    <sys:String x:Key="Free.Refresh">刷新</sys:String>
+    <sys:String x:Key="Free.Hint">限免情报来自 Epic / Steam 官方接口，GOG / Humble 特价来自 CheapShark 聚合数据（按折扣力度排序）。不代登录、不自动下单，点按钮直达商店页。</sys:String>
+    <sys:String x:Key="Free.Loading">正在从 Epic / Steam 官方接口获取限免情报…</sys:String>
+    <sys:String x:Key="Free.Empty">当前没有可领取的限免</sys:String>
+    <sys:String x:Key="Free.Count">共 {0} 款（可领 {1}，即将开始 {2}）</sys:String>
+    <sys:String x:Key="Free.NoData">当前接口未返回限免游戏，可能本期已结束，稍后点「刷新」再试。</sys:String>
+    <sys:String x:Key="Free.Platform">平台 {0}</sys:String>
+    <sys:String x:Key="Free.Upcoming">即将开始：{0} 起免费</sys:String>
+    <sys:String x:Key="Free.Deadline">免费领取截止：{0}（剩 {1} 天 {2} 小时）</sys:String>
+    <sys:String x:Key="Free.Ended">本期已结束</sys:String>
+    <sys:String x:Key="Free.DealRunning">特价进行中（价格以商店页为准）</sys:String>
+    <sys:String x:Key="Free.FreeRunning">限免进行中（截止时间以商店页为准）</sys:String>
+    <sys:String x:Key="Free.Claim">本内领取 ↗</sys:String>
+    <sys:String x:Key="Free.Buy">去购买 ↗</sys:String>
+    <sys:String x:Key="Free.ExternalOpen">或用系统浏览器打开 ↗</sys:String>
+    <sys:String x:Key="Free.CoverLoading">加载中…</sys:String>
+    <sys:String x:Key="Free.EpicEmpty">Epic 本期无活动/解析为空；</sys:String>
+    <sys:String x:Key="Free.EpicFailed">Epic 获取失败（{0}）；</sys:String>
+    <sys:String x:Key="Free.SteamEmpty">Steam 当前期免为空；</sys:String>
+    <sys:String x:Key="Free.SteamUnreachable">Steam 不可达已跳过（网络限制）；</sys:String>
+    <sys:String x:Key="Free.GogFailed">GOG 特价获取失败；</sys:String>
+    <sys:String x:Key="Free.HumbleFailed">Humble 特价获取失败；</sys:String>
+    <sys:String x:Key="Free.Updated">更新于 {0} · {1}</sys:String>
+    <sys:String x:Key="Free.AllOk">全部数据源正常</sys:String>
+    <sys:String x:Key="Free.FetchFailed">获取失败：{0}（检查网络后点右上角「刷新」重试）</sys:String>
+    <sys:String x:Key="Free.OpenBrowserFailed">打开浏览器失败：{0}</sys:String>
+    <sys:String x:Key="Free.OpenEmbedFailed">打开内嵌浏览器失败：{0}</sys:String>
+    <sys:String x:Key="Tip.Claim">在内嵌浏览器中打开；登录一次后 Cookie 保存本机，直接在页面点「获取」</sys:String>
+
+    <!-- Tab 4 设置 -->
+    <sys:String x:Key="Set.Process">进程监控</sys:String>
+    <sys:String x:Key="Set.AutoDetect">自动检测游戏进程</sys:String>
+    <sys:String x:Key="Set.AutoDetectHint">　规则：内置白名单 + 全屏窗口 ≥90%</sys:String>
+    <sys:String x:Key="Set.PinLabel">手动固定监控：</sys:String>
+    <sys:String x:Key="Set.Pin">固定</sys:String>
+    <sys:String x:Key="Set.Unpin">解除，回到自动</sys:String>
+    <sys:String x:Key="Set.RefreshList">刷新列表</sys:String>
+    <sys:String x:Key="Set.Osd">OSD 悬浮条</sys:String>
+    <sys:String x:Key="Set.OsdItems">显示项目（勾选即显示）</sys:String>
+    <sys:String x:Key="Set.OsdAppearance">外观</sys:String>
+    <sys:String x:Key="Set.OsdPos">位置</sys:String>
+    <sys:String x:Key="Set.OsdFontSize">字号</sys:String>
+    <sys:String x:Key="Set.OsdOpacity">不透明度</sys:String>
+    <sys:String x:Key="Set.OsdCorner1">模式1 · 左上角</sys:String>
+    <sys:String x:Key="Set.OsdCorner2">模式2 · 上部居中</sys:String>
+    <sys:String x:Key="Set.OsdCorner3">模式3 · 右上角</sys:String>
+    <sys:String x:Key="Set.OsdCpuL">CPU 占用</sys:String>
+    <sys:String x:Key="Set.OsdCpuT">CPU 温度</sys:String>
+    <sys:String x:Key="Set.OsdGpuL">GPU 占用</sys:String>
+    <sys:String x:Key="Set.OsdGpuT">GPU 温度</sys:String>
+    <sys:String x:Key="Set.OsdNet">网速</sys:String>
+    <sys:String x:Key="Set.Tile">桌面监控磁贴</sys:String>
+    <sys:String x:Key="Set.TileStyle">风格</sys:String>
+    <sys:String x:Key="Set.TileStyle0">游戏加加面板（曲线+进度条）</sys:String>
+    <sys:String x:Key="Set.TileStyle1">紧凑横条（CPU/GPU/显存/内存/网络）</sys:String>
+    <sys:String x:Key="Set.TileStyle2">卡片网格（2×2 大数值）</sys:String>
+    <sys:String x:Key="Set.TileStyle3">任务栏细条（进度条型）</sys:String>
+    <sys:String x:Key="Set.TileClickThrough">鼠标穿透（开启后磁贴不拦截鼠标，需从主窗关闭）</sys:String>
+    <sys:String x:Key="Set.TileTaskbar">任务栏监控条（显示简要 CPU/GPU 占用、温度、网速，停靠在任务栏上方）</sys:String>
+    <sys:String x:Key="Set.TileMini">主窗口最小化时，磁贴自动折叠到任务栏角落（双击磁贴恢复）</sys:String>
+    <sys:String x:Key="Set.TileResetPos">重置磁贴位置</sys:String>
+    <sys:String x:Key="Set.TileDragHint">　拖动磁贴可自由摆放，位置自动记忆</sys:String>
+    <sys:String x:Key="Set.Collect">采集与日志</sys:String>
+    <sys:String x:Key="Set.PollInterval">硬件轮询间隔</sys:String>
+    <sys:String x:Key="Set.CsvLog">CSV 日志</sys:String>
+    <sys:String x:Key="Set.CsvOff">关闭</sys:String>
+    <sys:String x:Key="Set.CsvFrame">帧级（每帧一行）</sys:String>
+    <sys:String x:Key="Set.CsvSec">秒级（每秒一行）</sys:String>
+    <sys:String x:Key="Set.CsvFile">　文件：exe 目录 bfv_fps_log.csv</sys:String>
+    <sys:String x:Key="Set.System">系统</sys:String>
+    <sys:String x:Key="Set.Autostart">开机自启（写入当前用户注册表 Run 键）</sys:String>
+    <sys:String x:Key="Set.SessionPopup">游戏退出后自动弹出性能报告窗口</sys:String>
+    <sys:String x:Key="Set.SnapshotBtn">立即保存快照（当前全部指标 → 文本文件）</sys:String>
+    <sys:String x:Key="Set.Language">语言 / Language</sys:String>
+
+    <!-- Tab 4.5 语言切换 -->
+    <sys:String x:Key="Lang.Hint">界面语言即时切换，浏览器商店页语言请用网页内切换。</sys:String>
+    <sys:String x:Key="Lang.ZhName">中文（简体）</sys:String>
+    <sys:String x:Key="Lang.EnName">English (US)</sys:String>
+
+    <!-- 快照文件 -->
+    <sys:String x:Key="Snap.Header">GameMonitor 快照  {0}</sys:String>
+    <sys:String x:Key="Snap.Game">游戏: {0} (PID {1}, {2})  PresentMon: {3}</sys:String>
+    <sys:String x:Key="Snap.PmRunning">运行中</sys:String>
+    <sys:String x:Key="Snap.PmStopped">停止</sys:String>
+    <sys:String x:Key="Snap.Fps">FPS: 瞬时 {0} / 平均 {1} / 1% Low {2} / 0.1% Low {3} / 最大帧耗时 {4}ms</sys:String>
+    <sys:String x:Key="Snap.Cpu">CPU: 占用 {0} 温度 {1} 频率 {2} 功耗 {3}</sys:String>
+    <sys:String x:Key="Snap.Ram">内存: {0} / {1}</sys:String>
+    <sys:String x:Key="Snap.Gpu">GPU: {0}  占用 {1} 温度 {2} 核心频率 {3} 功耗 {4} 风扇 {5}</sys:String>
+    <sys:String x:Key="Snap.Vram">显存: {0} / {1}</sys:String>
+    <sys:String x:Key="Snap.Disk">磁盘: 读 {0} 写 {1} 温度 {2}</sys:String>
+    <sys:String x:Key="Snap.Net">网络: ↓{0} ↑{1}</sys:String>
+    <sys:String x:Key="Snap.Batt">电池: {0} {1} {2}</sys:String>
+
+    <!-- 通用对话框 / 错误 -->
+    <sys:String x:Key="App.Title">Game Monitor</sys:String>
+    <sys:String x:Key="App.Crash">程序遇到错误但已拦载：{0}&#x0A;&#x0A;若是磁贴/悬浮条相关，请在设置里关闭对应开关后重试。</sys:String>
+    <sys:String x:Key="Tile.FailStart">桌面磁贴启动失败（已回退关闭状态）：{0}</sys:String>
+    <sys:String x:Key="Report.PopupFail">性能报告弹窗失败：{0}</sys:String>
+    <sys:String x:Key="Export.Done">已导出：{0}</sys:String>
+    <sys:String x:Key="Export.Ok">导出成功</sys:String>
+    <sys:String x:Key="Export.Fail">导出失败</sys:String>
+
+    <!-- 性能报告 (1.0) -->
+    <sys:String x:Key="Report.Title">性能报告</sys:String>
+    <sys:String x:Key="Report.Head">　开始 {0} · 结束 {1} · 时长 {2} · 分辨率 {3}</sys:String>
+    <sys:String x:Key="Report.Export">导出 JSON</sys:String>
+    <sys:String x:Key="Report.CpuPct">CPU 占用 %</sys:String>
+    <sys:String x:Key="Report.CpuTemp">CPU 温度 °C</sys:String>
+    <sys:String x:Key="Report.GpuPct">GPU 占用 %</sys:String>
+    <sys:String x:Key="Report.GpuTemp">GPU 温度 °C</sys:String>
+    <sys:String x:Key="Report.RamGb">内存 GB</sys:String>
+    <sys:String x:Key="Report.MinMax">最低 {0} / 最高 {1}</sys:String>
+    <sys:String x:Key="Report.RamPeak">峰值 {0} GB</sys:String>
+    <sys:String x:Key="Report.FpsAvg">FPS 相关 · 平均</sys:String>
+    <sys:String x:Key="Report.AvgFps">平均 FPS</sys:String>
+    <sys:String x:Key="Report.Max">最大</sys:String>
+    <sys:String x:Key="Report.Min">最小</sys:String>
+    <sys:String x:Key="Report.Power">功耗/能耗</sys:String>
+    <sys:String x:Key="Report.PowerVal">CPU {0}W · GPU {1}W · 本次约 {2} Wh · CO₂ ≈ {3} g</sys:String>
+    <sys:String x:Key="Metric.Fps">FPS</sys:String>
+    <sys:String x:Key="Metric.Ram">内存 GB</sys:String>
+    <sys:String x:Key="Metric.Down">下载 Kbps</sys:String>
+    <sys:String x:Key="Metric.Up">上传 Kbps</sys:String>
+
+    <!-- 性能报告 2.0 -->
+    <sys:String x:Key="Detail.Title">性能报告 2.0</sys:String>
+    <sys:String x:Key="Detail.Head">　{0} → {1}　时长 {2}　分辨率 {3}</sys:String>
+    <sys:String x:Key="Detail.FpsSection">FPS 相关</sys:String>
+    <sys:String x:Key="Detail.Avg">Avg 平均</sys:String>
+    <sys:String x:Key="Detail.Max">Max 最大</sys:String>
+    <sys:String x:Key="Detail.Min">Min 最小</sys:String>
+    <sys:String x:Key="Detail.CpuSection">CPU · {0}</sys:String>
+    <sys:String x:Key="Detail.GpuSection">GPU · {0}</sys:String>
+    <sys:String x:Key="Detail.Cores">核心/线程</sys:String>
+    <sys:String x:Key="Detail.AvgLoad">平均占用</sys:String>
+    <sys:String x:Key="Detail.MinMaxLoad">最低/最高占用</sys:String>
+    <sys:String x:Key="Detail.AvgPwr">平均功耗</sys:String>
+    <sys:String x:Key="Detail.AvgTemp">平均温度</sys:String>
+    <sys:String x:Key="Detail.MinMaxTemp">最低/最高温度</sys:String>
+    <sys:String x:Key="Detail.TotalFrames">总帧数</sys:String>
+    <sys:String x:Key="Detail.NetTraffic">↓ {0} MB · ↑ {1} MB</sys:String>
+    <sys:String x:Key="Detail.NetTrafficL">网络流量</sys:String>
+    <sys:String x:Key="Detail.VramTotal">显存总量</sys:String>
+    <sys:String x:Key="Detail.AvgVram">平均显存占用</sys:String>
+    <sys:String x:Key="Detail.PeakVram">峰值显存</sys:String>
+    <sys:String x:Key="Detail.MemDisk">内存 · 硬盘</sys:String>
+    <sys:String x:Key="Detail.Chart">指标折线（全程）</sys:String>
+    <sys:String x:Key="Detail.RamSticks">内存条</sys:String>
+    <sys:String x:Key="Detail.AvgPeak">会话均值/峰值</sys:String>
+    <sys:String x:Key="Detail.Energy">能耗/碳排放</sys:String>
+    <sys:String x:Key="Detail.EnergyVal">≈ {0} Wh · CO₂ ≈ {1} g</sys:String>
+    <sys:String x:Key="Detail.Timeline">T+{0}s · FPS {1} · CPU {2}% {3}°C · GPU {4}% {5}°C</sys:String>
+
+    <!-- 商店登录窗 -->
+    <sys:String x:Key="Store.Title">商店登录 · Epic / Steam</sys:String>
+    <sys:String x:Key="Store.Hint">在官方页面登录，会话保存在本机（密码不经手、不上传）</sys:String>
+    <sys:String x:Key="Store.Clear">清除登录态</sys:String>
+    <sys:String x:Key="Store.OpenExt">用系统浏览器打开</sys:String>
+    <sys:String x:Key="Store.TitleBar">商店登录 · {0}</sys:String>
+    <sys:String x:Key="Store.NoWebView">缺少 WebView2 Runtime</sys:String>
+    <sys:String x:Key="Store.WebViewMsg">缺少 Microsoft WebView2 运行时。&#x0A;请安装后重试：https://developer.microsoft.com/microsoft-edge/webview2/</sys:String>
+    <sys:String x:Key="Store.InitFail">初始化失败: {0}</sys:String>
+    <sys:String x:Key="Store.LoginPage">登录页 — 登录完成后 Cookie 将自动保存在本机</sys:String>
+    <sys:String x:Key="Store.SessionKept">已会话保持 — 登录过一次后，直接在页面点「获取」即可入库</sys:String>
+    <sys:String x:Key="Store.ClearConfirm">将删除本工具保存的全部商店 Cookie 与会话（store_profile 目录）。&#x0A;继续？</sys:String>
+    <sys:String x:Key="Store.ClearTitle">清除登录态</sys:String>
+    <sys:String x:Key="Store.Cleared">登录态已清除</sys:String>
+    <sys:String x:Key="Store.ClearFail">清除失败：{0}</sys:String>
+    <sys:String x:Key="Store.TipClear">清除本工具保存的商店 Cookie（不影响浏览器）</sys:String>
+
+    <!-- 桌面磁贴 / 任务栏小条 -->
+    <sys:String x:Key="Tile.Title">桌面监控磁贴</sys:String>
+    <sys:String x:Key="Tile.RenderFail">磁贴渲染异常: {0}</sys:String>
+    <sys:String x:Key="Tile.Cpu">CPU 处理器</sys:String>
+    <sys:String x:Key="Tile.Gpu">GPU 显卡</sys:String>
+    <sys:String x:Key="Tile.Ram">内存</sys:String>
+    <sys:String x:Key="Tile.Vram">显存</sys:String>
+    <sys:String x:Key="Tile.Net">网络</sys:String>
+    <sys:String x:Key="Tile.MemVram">内存 / 显存</sys:String>
+    <sys:String x:Key="Tile.NetRate">网络速率</sys:String>
+    <sys:String x:Key="Tile.NetS">网 络</sys:String>
+    <sys:String x:Key="Tile.RamPP">内存</sys:String>
+    <sys:String x:Key="Tile.VramPP">显 存</sys:String>
+    <sys:String x:Key="Tile.GamePPHeader">Game Monitor 桌面监控</sys:String>
+    <sys:String x:Key="Tile.MemSub">内存 {0}/{1}GB</sys:String>
+    <sys:String x:Key="Tile.VramSub">显存 {0}/{1}MB</sys:String>
+    <sys:String x:Key="Tile.NetSub">全部网卡 IPv4 · 1s 采样</sys:String>
+    <sys:String x:Key="Tbw.Title">任务栏监控</sys:String>
+
+    <!-- 时长 / 状态词 -->
+    <sys:String x:Key="Dur.HhMmSs">{0}小时{1}分{2}秒</sys:String>
+    <sys:String x:Key="Dur.MmSs">{0}分{1}秒</sys:String>
+    <sys:String x:Key="Src.White">白名单</sys:String>
+    <sys:String x:Key="Src.Fullscreen">全屏</sys:String>
+    <sys:String x:Key="Src.Manual">手动</sys:String>
+    <sys:String x:Key="Batt.Ac">已接电源</sys:String>
+    <sys:String x:Key="Batt.Dc">使用电池</sys:String>
+    <sys:String x:Key="Src.CpuSensor">CPU 传感器</sys:String>
+    <sys:String x:Key="Src.AcpiZone">ACPI 热区</sys:String>
+    <sys:String x:Key="Pm.Exited">PM 已退出</sys:String>
+    <sys:String x:Key="Pm.Denied">PM 采集会话被拒：游戏反作弊拦截了新的 ETW 会话。退出游戏后监控会自动重建；请保持监控常驻，先启动监控再启动游戏即可正常显示 FPS</sys:String>
+</ResourceDictionary>

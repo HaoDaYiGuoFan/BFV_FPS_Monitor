@@ -42,7 +42,7 @@ public partial class StoreLoginWindow : Window
 
             core.DocumentTitleChanged += (_, _) =>
             {
-                Title = "商店登录 · " + core.DocumentTitle;
+                Title = Localization.F("Store.TitleBar", core.DocumentTitle);
                 DetectLoginState();
             };
             core.NavigationCompleted += (_, _) => DetectLoginState();
@@ -52,15 +52,15 @@ public partial class StoreLoginWindow : Window
         }
         catch (WebView2RuntimeNotFoundException)
         {
-            StateText.Text = "缺少 WebView2 Runtime";
+            StateText.Text = Localization.T("Store.NoWebView");
             StateText.Foreground = (System.Windows.Media.Brush)FindResource("AccentRed");
             MessageBox.Show(this,
-                "缺少 Microsoft WebView2 运行时。\n请安装后重试：https://developer.microsoft.com/microsoft-edge/webview2/",
-                "Game Monitor", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Localization.T("Store.WebViewMsg"),
+                Localization.T("App.Title"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         catch (Exception ex)
         {
-            StateText.Text = "初始化失败: " + ex.Message;
+            StateText.Text = Localization.F("Store.InitFail", ex.Message);
         }
     }
 
@@ -74,12 +74,12 @@ public partial class StoreLoginWindow : Window
                            url.Contains("authentication", StringComparison.OrdinalIgnoreCase);
             if (onLogin)
             {
-                StateText.Text = "登录页 — 登录完成后 Cookie 将自动保存在本机";
+                StateText.Text = Localization.T("Store.LoginPage");
                 StateText.Foreground = (System.Windows.Media.Brush)FindResource("AccentOrange");
             }
             else
             {
-                StateText.Text = "已会话保持 — 登录过一次后，直接在页面点「获取」即可入库";
+                StateText.Text = Localization.T("Store.SessionKept");
                 StateText.Foreground = (System.Windows.Media.Brush)FindResource("AccentGreen");
             }
         }
@@ -89,8 +89,8 @@ public partial class StoreLoginWindow : Window
     private void ClearBtn_Click(object sender, RoutedEventArgs e)
     {
         var r = MessageBox.Show(this,
-            "将删除本工具保存的全部商店 Cookie 与会话（store_profile 目录）。\n继续？",
-            "清除登录态", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            Localization.T("Store.ClearConfirm"),
+            Localization.T("Store.ClearTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
 
         try
@@ -101,13 +101,13 @@ public partial class StoreLoginWindow : Window
             {
                 try { if (Directory.Exists(_profileDir)) Directory.Delete(_profileDir, true); } catch { }
             });
-            StateText.Text = "登录态已清除";
+            StateText.Text = Localization.T("Store.Cleared");
             StateText.Foreground = (System.Windows.Media.Brush)FindResource("TextSecondary");
             Web.Source = new Uri(EpicUrl);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, "清除失败：" + ex.Message, "Game Monitor", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(this, Localization.F("Store.ClearFail", ex.Message), Localization.T("App.Title"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

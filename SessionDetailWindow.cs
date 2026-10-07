@@ -18,11 +18,18 @@ public class SessionDetailWindow : Window
     private Slider _timeline = null!;
     private TextBlock _timelineLabel = null!;
     private TextBlock _legendText = null!;
+    private readonly Action _localizeHandler;
+
+    /// <summary>图表指标 key 顺序与组合框一致。</summary>
+    private static readonly string[] MetricKeys = { "Metric.Fps", "Chart.CpuLoad", "Report.CpuTemp", "Chart.GpuLoad", "Report.GpuTemp", "Metric.Ram", "Metric.Down", "Metric.Up" };
 
     public SessionDetailWindow(GameSession s)
     {
         _s = s;
-        Title = "性能报告 2.0";
+        _localizeHandler = () => { try { Build(); } catch { } };
+        Localization.LanguageChanged += _localizeHandler;
+        Closed += (_, _) => Localization.LanguageChanged -= _localizeHandler;
+        Title = Localization.T("Detail.Title");
         Width = 1200;
         Height = 860;
         MinWidth = 980;
@@ -43,18 +50,18 @@ public class SessionDetailWindow : Window
         var head = new DockPanel { Margin = new Thickness(0, 0, 0, 10) };
         var headLeft = new StackPanel { Orientation = Orientation.Horizontal };
         headLeft.Children.Add(new TextBlock { Text = _s.GameName, FontSize = 19, FontWeight = FontWeights.Bold, Foreground = (Brush)FindResource("TextPrimary"), VerticalAlignment = VerticalAlignment.Center });
-        headLeft.Children.Add(Muted($"　{_s.Start:yyyy-MM-dd HH:mm:ss} → {_s.End:HH:mm:ss}　时长 {_s.DurationText}　分辨率 {_s.Resolution}"));
+        headLeft.Children.Add(Muted(Localization.F("Detail.Head", _s.Start.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), _s.End.ToString("HH:mm:ss", CultureInfo.InvariantCulture), _s.DurationText, _s.Resolution)));
         head.Children.Add(headLeft);
-        var exportBtn = new Button { Content = "导出 JSON", Style = (Style)FindResource("OverlayToggle"), Padding = new Thickness(12, 5, 12, 5) };
+        var exportBtn = new Button { Content = Localization.T("Report.Export"), Style = (Style)FindResource("OverlayToggle"), Padding = new Thickness(12, 5, 12, 5) };
         exportBtn.Click += (_, _) =>
         {
             try
             {
                 var path = System.IO.Path.Combine(AppContext.BaseDirectory, $"report_{_s.GameName}_{_s.Start:yyyyMMdd_HHmmss}.json");
                 System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(_s, new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
-                MessageBox.Show(this, $"已导出：{path}", "导出成功");
+                MessageBox.Show(this, Localization.F("Export.Done", path), Localization.T("Export.Ok"));
             }
-            catch (Exception ex) { MessageBox.Show(this, ex.Message, "导出失败"); }
+            catch (Exception ex) { MessageBox.Show(this, ex.Message, Localization.T("Export.Fail")); }
         };
         DockPanel.SetDock(exportBtn, Dock.Right);
         exportBtn.HorizontalAlignment = HorizontalAlignment.Right;
@@ -63,33 +70,33 @@ public class SessionDetailWindow : Window
         root.Children.Add(head);
 
         // ===== FPS 相关五大卡 =====
-        var fpsSection = SectionTitle("FPS 相关");
+        var fpsSection = SectionTitle(Localization.T("Detail.FpsSection"));
         root.Children.Add(fpsSection);
         var fpsGrid = new UniformGrid { Columns = 5, Margin = new Thickness(0, 4, 0, 10) };
-        AddBigStat(fpsGrid, "Avg 平均", _s.FpsAvg.ToString("F1"), "AccentOrange");
-        AddBigStat(fpsGrid, "Max 最大", _s.FpsMax.ToString("F0"), "AccentBlue");
-        AddBigStat(fpsGrid, "Min 最小", _s.FpsMin.ToString("F0"), "AccentRed");
-        AddBigStat(fpsGrid, "1% Low", _s.FpsOneLow.ToString("F1"), "AccentGreen");
-        AddBigStat(fpsGrid, "0.1% Low", _s.FpsPointOneLow.ToString("F1"), "AccentOrange");
+        AddBigStat(fpsGrid, Localization.T("Detail.Avg"), _s.FpsAvg.ToString("F1", CultureInfo.InvariantCulture), "AccentOrange");
+        AddBigStat(fpsGrid, Localization.T("Detail.Max"), _s.FpsMax.ToString("F0", CultureInfo.InvariantCulture), "AccentBlue");
+        AddBigStat(fpsGrid, Localization.T("Detail.Min"), _s.FpsMin.ToString("F0", CultureInfo.InvariantCulture), "AccentRed");
+        AddBigStat(fpsGrid, "1% Low", _s.FpsOneLow.ToString("F1", CultureInfo.InvariantCulture), "AccentGreen");
+        AddBigStat(fpsGrid, "0.1% Low", _s.FpsPointOneLow.ToString("F1", CultureInfo.InvariantCulture), "AccentOrange");
         root.Children.Add(fpsGrid);
 
         var st = App.Engine?.Static;
 
         // ===== CPU 区块 =====
-        root.Children.Add(SectionTitle("CPU · " + (st?.CpuName ?? "—")));
+        root.Children.Add(SectionTitle(Localization.F("Detail.CpuSection", st?.CpuName ?? "—")));
         var cpuGrid = new Grid { Margin = new Thickness(0, 2, 0, 10) };
         cpuGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         cpuGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var cpuLeft = new StackPanel();
-        AddMini(cpuLeft, "核心/线程", $"{st?.CpuCores ?? 0} / {st?.CpuThreads ?? 0}");
-        AddMini(cpuLeft, "平均占用", Pct(_s.CpuLoadAvg));
-        AddMini(cpuLeft, "最低/最高占用", $"{Pct(_s.CpuLoadMin)} / {Pct(_s.CpuLoadMax)}");
-        AddMini(cpuLeft, "平均功耗", W(_s.CpuPowerAvgW));
+        AddMini(cpuLeft, Localization.T("Detail.Cores"), $"{st?.CpuCores ?? 0} / {st?.CpuThreads ?? 0}");
+        AddMini(cpuLeft, Localization.T("Detail.AvgLoad"), Pct(_s.CpuLoadAvg));
+        AddMini(cpuLeft, Localization.T("Detail.MinMaxLoad"), $"{Pct(_s.CpuLoadMin)} / {Pct(_s.CpuLoadMax)}");
+        AddMini(cpuLeft, Localization.T("Detail.AvgPwr"), W(_s.CpuPowerAvgW));
         var cpuRight = new StackPanel();
-        AddMini(cpuRight, "平均温度", T(_s.CpuTempAvg));
-        AddMini(cpuRight, "最低/最高温度", $"{T(_s.CpuTempMin)} / {T(_s.CpuTempMax)}");
-        AddMini(cpuRight, "总帧数", _s.FrameTotal.ToString("N0"));
-        AddMini(cpuRight, "网络流量", $"↓ {_s.NetDownTotalMb:F1} MB · ↑ {_s.NetUpTotalMb:F1} MB");
+        AddMini(cpuRight, Localization.T("Detail.AvgTemp"), T(_s.CpuTempAvg));
+        AddMini(cpuRight, Localization.T("Detail.MinMaxTemp"), $"{T(_s.CpuTempMin)} / {T(_s.CpuTempMax)}");
+        AddMini(cpuRight, Localization.T("Detail.TotalFrames"), _s.FrameTotal.ToString("N0", CultureInfo.InvariantCulture));
+        AddMini(cpuRight, Localization.T("Detail.NetTrafficL"), Localization.F("Detail.NetTraffic", _s.NetDownTotalMb.ToString("F1", CultureInfo.InvariantCulture), _s.NetUpTotalMb.ToString("F1", CultureInfo.InvariantCulture)));
         Grid.SetColumn(cpuLeft, 0);
         Grid.SetColumn(cpuRight, 1);
         var cpuCard = Card();
@@ -103,21 +110,21 @@ public class SessionDetailWindow : Window
         root.Children.Add(cpuCard);
 
         // ===== GPU 区块 =====
-        root.Children.Add(SectionTitle("GPU · " + (st?.GpuName ?? "—")));
+        root.Children.Add(SectionTitle(Localization.F("Detail.GpuSection", st?.GpuName ?? "—")));
         var gpuCard = Card();
         var gpuWrap = new Grid();
         gpuWrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         gpuWrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var gpuLeft = new StackPanel();
-        AddMini(gpuLeft, "显存总量", st?.GpuVram ?? "—");
-        AddMini(gpuLeft, "平均占用", Pct(_s.GpuLoadAvg));
-        AddMini(gpuLeft, "最低/最高占用", $"{Pct(_s.GpuLoadMin)} / {Pct(_s.GpuLoadMax)}");
-        AddMini(gpuLeft, "平均功耗", W(_s.GpuPowerAvgW));
+        AddMini(gpuLeft, Localization.T("Detail.VramTotal"), st?.GpuVram ?? "—");
+        AddMini(gpuLeft, Localization.T("Detail.AvgLoad"), Pct(_s.GpuLoadAvg));
+        AddMini(gpuLeft, Localization.T("Detail.MinMaxLoad"), $"{Pct(_s.GpuLoadMin)} / {Pct(_s.GpuLoadMax)}");
+        AddMini(gpuLeft, Localization.T("Detail.AvgPwr"), W(_s.GpuPowerAvgW));
         var gpuRight = new StackPanel();
-        AddMini(gpuRight, "平均温度", T(_s.GpuTempAvg));
-        AddMini(gpuRight, "最低/最高温度", $"{T(_s.GpuTempMin)} / {T(_s.GpuTempMax)}");
-        AddMini(gpuRight, "平均显存占用", _s.GpuMemAvgGb > 0 ? $"{_s.GpuMemAvgGb:F2} GB" : "—");
-        AddMini(gpuRight, "峰值显存", _s.GpuMemMaxGb > 0 ? $"{_s.GpuMemMaxGb:F2} GB" : "—");
+        AddMini(gpuRight, Localization.T("Detail.AvgTemp"), T(_s.GpuTempAvg));
+        AddMini(gpuRight, Localization.T("Detail.MinMaxTemp"), $"{T(_s.GpuTempMin)} / {T(_s.GpuTempMax)}");
+        AddMini(gpuRight, Localization.T("Detail.AvgVram"), _s.GpuMemAvgGb > 0 ? $"{_s.GpuMemAvgGb:F2} GB" : "—");
+        AddMini(gpuRight, Localization.T("Detail.PeakVram"), _s.GpuMemMaxGb > 0 ? $"{_s.GpuMemMaxGb:F2} GB" : "—");
         gpuWrap.Children.Add(gpuLeft);
         Grid.SetColumn(gpuRight, 1);
         gpuWrap.Children.Add(gpuRight);
@@ -125,17 +132,17 @@ public class SessionDetailWindow : Window
         root.Children.Add(gpuCard);
 
         // ===== 内存 / 硬盘 =====
-        root.Children.Add(SectionTitle("内存 · 硬盘"));
+        root.Children.Add(SectionTitle(Localization.T("Detail.MemDisk")));
         var memCard = Card();
         var memWrap = new Grid();
         memWrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         memWrap.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         var memLeft = new StackPanel();
-        AddMini(memLeft, "内存条", st?.RamInfo ?? "—");
-        AddMini(memLeft, "会话均值/峰值", _s.RamAvgGb > 0 ? $"{_s.RamAvgGb:F1} / {_s.RamMaxGb:F1} GB" : "—");
+        AddMini(memLeft, Localization.T("Detail.RamSticks"), st?.RamInfo ?? "—");
+        AddMini(memLeft, Localization.T("Detail.AvgPeak"), _s.RamAvgGb > 0 ? $"{_s.RamAvgGb:F1} / {_s.RamMaxGb:F1} GB" : "—");
         var memRight = new StackPanel();
-        AddMini(memRight, "硬盘", $"{st?.DiskModel ?? "—"} {st?.DiskCapacity ?? ""}");
-        AddMini(memRight, "能耗/碳排放", $"≈ {_s.EnergyKwh * 1000:F1} Wh · CO₂ ≈ {_s.Co2Grams:F1} g");
+        AddMini(memRight, Localization.T("St.Disk"), $"{st?.DiskModel ?? "—"} {st?.DiskCapacity ?? ""}");
+        AddMini(memRight, Localization.T("Detail.Energy"), Localization.F("Detail.EnergyVal", (_s.EnergyKwh * 1000.0).ToString("F1", CultureInfo.InvariantCulture), _s.Co2Grams.ToString("F1", CultureInfo.InvariantCulture)));
         memWrap.Children.Add(memLeft);
         Grid.SetColumn(memRight, 1);
         memWrap.Children.Add(memRight);
@@ -143,7 +150,7 @@ public class SessionDetailWindow : Window
         root.Children.Add(memCard);
 
         // ===== 多指标折线 =====
-        root.Children.Add(SectionTitle("指标折线（全程）"));
+        root.Children.Add(SectionTitle(Localization.T("Detail.Chart")));
         var chartCard = Card();
         var chartRoot = new Grid { Height = 260 };
         chartRoot.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -151,8 +158,13 @@ public class SessionDetailWindow : Window
         chartRoot.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         var chartHead = new DockPanel { Margin = new Thickness(0, 0, 0, 6) };
         var combo = new ComboBox { Style = (Style)FindResource("DarkCombo"), Width = 180, MinHeight = 28 };
-        foreach (var m in new[] { "FPS", "CPU 占用 %", "CPU 温度 °C", "GPU 占用 %", "GPU 温度 °C", "内存 GB", "下载 Kbps", "上传 Kbps" })
-            combo.Items.Add(m);
+        foreach (var k in MetricKeys)
+        {
+            // DynamicResource 引用：语言切换时 ComboBoxItem 文本实时跟随，无需重建窗口。
+            var ci = new ComboBoxItem();
+            ci.SetResourceReference(ContentControl.ContentProperty, k);
+            combo.Items.Add(ci);
+        }
         combo.SelectedIndex = 0;
         combo.SelectionChanged += (_, _) => RedrawChart();
         _metricCombo = combo;
@@ -192,7 +204,13 @@ public class SessionDetailWindow : Window
             if (_s.Samples.Count > 0 && idx >= 0 && idx < _s.Samples.Count)
             {
                 var p = _s.Samples[idx];
-                _timelineLabel.Text = $"T+{p.T:F0}s · FPS {p.Fps:F0} · CPU {p.CpuLoad:F0}% {p.CpuTemp:F0}°C · GPU {p.GpuLoad:F0}% {p.GpuTemp:F0}°C";
+                _timelineLabel.Text = Localization.F("Detail.Timeline",
+                    p.T.ToString("F0", CultureInfo.InvariantCulture),
+                    p.Fps.ToString("F0", CultureInfo.InvariantCulture),
+                    p.CpuLoad.ToString("F0", CultureInfo.InvariantCulture),
+                    p.CpuTemp.ToString("F0", CultureInfo.InvariantCulture),
+                    p.GpuLoad.ToString("F0", CultureInfo.InvariantCulture),
+                    p.GpuTemp.ToString("F0", CultureInfo.InvariantCulture));
             }
         };
         chartCard.Child = chartRoot;
@@ -206,28 +224,28 @@ public class SessionDetailWindow : Window
     private void RedrawChart()
     {
         if (_chart == null || _metricCombo == null) return;
-        var m = _metricCombo.SelectedItem as string ?? "FPS";
+        int idx = _metricCombo.SelectedIndex;
         var pts = _s.Samples;
         var vals = new List<double>();
         double max = 100;
         Brush line = Brushes.Orange;
-        switch (m)
+        switch (idx)
         {
-            case "FPS":
+            case 0: // FPS
                 vals = pts.Select(p => p.Fps).ToList(); max = Math.Max(60, _s.FpsMax * 1.15); line = Brushes.Orange; break;
-            case "CPU 占用 %":
+            case 1: // CPU 占用 %
                 vals = pts.Select(p => p.CpuLoad).ToList(); max = 100; line = (Brush)FindResource("AccentGreen"); break;
-            case "CPU 温度 °C":
+            case 2: // CPU 温度 °C
                 vals = pts.Select(p => p.CpuTemp).ToList(); max = 100; line = (Brush)FindResource("AccentBlue"); break;
-            case "GPU 占用 %":
+            case 3: // GPU 占用 %
                 vals = pts.Select(p => p.GpuLoad).ToList(); max = 100; line = (Brush)FindResource("AccentPurple"); break;
-            case "GPU 温度 °C":
+            case 4: // GPU 温度 °C
                 vals = pts.Select(p => p.GpuTemp).ToList(); max = 100; line = (Brush)FindResource("AccentBlue"); break;
-            case "内存 GB":
+            case 5: // 内存 GB
                 vals = pts.Select(p => p.RamUsedGb).ToList(); max = Math.Max(4, _s.RamMaxGb * 1.2); line = Brushes.Gold; break;
-            case "下载 Kbps":
+            case 6: // 下载 Kbps
                 vals = pts.Select(p => p.DownKbps).ToList(); max = Math.Max(1024, pts.Count > 0 ? pts.Max(p => p.DownKbps) * 1.2 : 1024); line = Brushes.DodgerBlue; break;
-            case "上传 Kbps":
+            case 7: // 上传 Kbps
                 vals = pts.Select(p => p.UpKbps).ToList(); max = Math.Max(512, pts.Count > 0 ? pts.Max(p => p.UpKbps) * 1.2 : 512); line = (Brush)FindResource("AccentPurple"); break;
         }
         int span = Math.Max(30, (int)_s.Duration.TotalSeconds);
@@ -235,8 +253,8 @@ public class SessionDetailWindow : Window
         _chart.UpdateValues(vals);
         var pos = vals.Where(x => x > 0).ToList();
         _legendText.Text = vals.Count > 0
-            ? $"最大 {vals.Max():F0} · 最小 {pos.DefaultIfEmpty(0).Min():F0} · 平均 {pos.DefaultIfEmpty(0).Average():F1} · 采样 {vals.Count} 点"
-            : "无采样数据";
+            ? Localization.F("Chart.Legend", vals.Max().ToString("F0", CultureInfo.InvariantCulture), pos.DefaultIfEmpty(0).Min().ToString("F0", CultureInfo.InvariantCulture), pos.DefaultIfEmpty(0).Average().ToString("F1", CultureInfo.InvariantCulture), vals.Count)
+            : Localization.T("Chart.NoData");
     }
 
     // ===== 工具 =====

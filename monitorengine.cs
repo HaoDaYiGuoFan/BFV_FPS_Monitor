@@ -31,6 +31,10 @@ public sealed class MonitorEngine : IDisposable
     private int _pmGeneration;       // PM 实例代际：StopPresentMon 时 +1，使旧实例的延迟重启链失效
     private bool _captureAll;        // 当前 PM 是否 captureall 模式
     private bool _pmForceCaptureAll; // 定向会话连续被拒后自动降级为全进程捕获（换游戏时重置）
+    private volatile string _pmLastStderr = "";  // 最后一次 PM stderr 输出（诊断 / 运行状态展示）
+    private long _pmWatchLines;      // 看门狗上次见到的 stdout 行数
+    private int _pmSilentTicks;      // 输出行数无增长的连续秒数
+    private const int PmSilentRestartTicks = 15;  // 绑定游戏后输出停滞 15 秒判定消费线程卡死，强制重启
     private int _colProcessId = -1;  // ProcessID 列索引（captureall 过滤用）
     private string _pmHeader = "";
     private int _colMsBetweenPresents = -1;
@@ -60,6 +64,8 @@ public sealed class MonitorEngine : IDisposable
     private int _boundPid;
     private string _lastGameName = "";   // 上轮判定结果（会话稳定性判定，防 PM 重启间隙误判为游戏切换）
     private int _lastGamePid;
+    private int _unboundTicks;           // 连续检测不到游戏的轮数（退出防抖）
+    private const int UnbindGraceTicks = 3;  // 连续 3 轮（约 3 秒）检测不到才判定退出
 
     // ===== 游戏会话统计（对标游戏加加性能统计） =====
     private GameSession? _session;                      // 进行中的会话
@@ -182,7 +188,8 @@ public sealed class MonitorEngine : IDisposable
     // ===== 静态硬件档案（游戏加加风格，启动时采集一次） =====
     public sealed class StaticInfo
     {
-        public string OsName = "";
+        public string OsName = "";              // 版本部分；位宽单独存 Os64Bit，显示时按语言拼装
+        public bool Os64Bit = true;
         public string CpuName = "";
         public int CpuCores, CpuThreads;
         public string GpuName = "";
@@ -193,8 +200,23 @@ public sealed class MonitorEngine : IDisposable
         public string DisplayInfo = "";
         public string RamInfo = "";
         public string RamSticks = "";
-        public string BatteryInfo = "";
+        public string BatteryInfo = "";         // 电池名称；设计容量单独存 BatteryDesignCapacity，显示时按语言拼装
+        public double BatteryDesignCapacity = 0;
         public string MachineName = "";
+
+        /// <summary>按当前语言拼装的操作系统显示名（含位宽）。</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string OsDisplay =>
+            string.IsNullOrEmpty(OsName) ? "" :
+            Localization.F("St.OsName", OsName, Localization.T(Os64Bit ? "St.Arch64" : "St.Arch32"));
+
+        /// <summary>按当前语言拼装的电池显示信息（含设计容量）。</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string BatteryDisplay =>
+            string.IsNullOrEmpty(BatteryInfo) ? "" :
+            BatteryDesignCapacity > 0
+                ? Localization.F("St.BatteryCap", BatteryInfo, BatteryDesignCapacity.ToString("F0", System.Globalization.CultureInfo.InvariantCulture))
+                : BatteryInfo;
     }
     private StaticInfo? _static;
     public StaticInfo? Static => _static;
@@ -210,7 +232,8 @@ public sealed class MonitorEngine : IDisposable
         try
         {
             si.MachineName = Environment.MachineName;
-            si.OsName = $"{Environment.OSVersion.VersionString} ({(Environment.Is64BitOperatingSystem ? "64 位" : "32 位")})";
+            si.OsName = Environment.OSVersion.VersionString;
+            si.Os64Bit = Environment.Is64BitOperatingSystem;
 
             var cpu = GetWmi(new ManagementObjectSearcher("root\\cimv2", "SELECT Name, NumberOfCores, NumberOfLogicalProcessors FROM Win32_Processor")).Cast<System.Management.ManagementObject>().FirstOrDefault();
             if (cpu != null)
@@ -257,7 +280,12 @@ public sealed class MonitorEngine : IDisposable
 
             var bat = GetWmi(new ManagementObjectSearcher("root\\cimv2", "SELECT Name, EstimatedChargeRemaining, DesignCapacity FROM Win32_Battery")).Cast<System.Management.ManagementObject>().FirstOrDefault();
             if (bat != null)
-                si.BatteryInfo = (bat["Name"]?.ToString() ?? "") + (bat["DesignCapacity"] != null ? $"　设计容量 {bat["DesignCapacity"]} mWh" : "");
+            {
+                si.BatteryInfo = bat["Name"]?.ToString() ?? "";
+                if (bat["DesignCapacity"] != null
+                    && double.TryParse(bat["DesignCapacity"]?.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var dc))
+                    si.BatteryDesignCapacity = dc;
+            }
 
             // 内存条详情（设备定位器 → SMBIOS 内存设备）
             try
@@ -321,9 +349,26 @@ public sealed class MonitorEngine : IDisposable
                     if (hit != null) { name = hit.Name; pid = hit.Pid; src = hit.Source; }
                 }
 
+                // 防抖：EAC 等反作弊保护下进程名查询会瞬时失败（同一 PID 隔几秒"消失又出现"，
+                // 曾导致会话每 5 秒断开重绑、性能报告窗口刷屏）——连续 3 轮检测不到才判定游戏退出
+                bool bound = pid != 0;
+                if (!bound && wasBound)
+                {
+                    _unboundTicks++;
+                    if (_unboundTicks < UnbindGraceTicks)
+                    {
+                        // 宽限期内维持上一轮绑定（会话与快照不中断）
+                        name = _lastGameName; pid = _lastGamePid;
+                        bound = true;
+                    }
+                }
+                else
+                {
+                    _unboundTicks = 0;
+                }
+
                 lock (_bindLock) { _boundName = name; _boundPid = pid; }
 
-                bool bound = pid != 0;
                 bool sameGame = wasBound && _lastGameName == name && _lastGamePid == pid;
                 if (bound && (!wasBound || !sameGame))
                 {
@@ -339,6 +384,7 @@ public sealed class MonitorEngine : IDisposable
                 else if (!bound && wasBound)
                 {
                     Log("游戏退出，停止帧采集（硬件监控继续）");
+                    _unboundTicks = 0;
                     _frameTimesMs.Clear();
                     StopPresentMon(keepPrefetch: true);
                     _frameTimesMs.Clear();
@@ -359,8 +405,28 @@ public sealed class MonitorEngine : IDisposable
                     s.ExclusiveFullscreen = excl;
                     s.PmLines = _pmLineCount;
                     s.PmFrames = _pmFrameCount;
-                    s.PmExitInfo = _pm is { HasExited: true } ? "PM已退出" : "";
+                    s.PmExitInfo = PmExitText();
                 });
+
+                // PM 哑火看门狗：绑定游戏 + captureall 模式下，桌面/游戏必有 present 事件，stdout 行数必然持续增长；
+                // 若 PM 进程存活但输出停滞（实测 PM 1.10 遇孤儿 ETW 会话会卡死消费线程：会话正常、事件正常、PM 零输出），
+                // 强制结束 PM，由退出回调的退避链自动重启重建
+                if (_pm is { HasExited: false } && _captureAll && pid != 0)
+                {
+                    long lines = Interlocked.Read(ref _pmLineCount);
+                    if (lines != _pmWatchLines) { _pmWatchLines = lines; _pmSilentTicks = 0; }
+                    else if (++_pmSilentTicks >= PmSilentRestartTicks)
+                    {
+                        _pmSilentTicks = 0;
+                        Log($"PresentMon 输出停滞 {PmSilentRestartTicks} 秒（消费线程疑似卡死），强制重启");
+                        try { _pm.Kill(entireProcessTree: true); } catch { }
+                    }
+                }
+                else
+                {
+                    _pmSilentTicks = 0;
+                }
+
                 wasBound = bound;
             }
             catch { }
@@ -375,6 +441,8 @@ public sealed class MonitorEngine : IDisposable
         _settings.PinnedProcess = name;
         _settings.Save();
         StopPresentMon();
+        // 重置为预捕会话待命：目标进程出现后按 PID 过滤复用（反作弊环境下必须先于游戏建立会话）
+        StartPrefetchSession();
         Log(string.IsNullOrEmpty(name) ? "解除手动固定，回到自动检测" : $"手动固定监控 {name}");
     }
 
@@ -415,29 +483,35 @@ public sealed class MonitorEngine : IDisposable
             bool prefetch = pid == 0;
             bool useCapAll = prefetch || _settings.PmCaptureAll || _pmForceCaptureAll;
             if (useCapAll) Log(prefetch ? "预捕会话启动（反作弊驱动加载前抢占 ETW）" : "PresentMon 使用全进程捕获模式（输出按游戏 PID 过滤）");
-            // 清理残留 ETW 会话：PM 异常退出会泄漏同名会话，残留会导致后续 StartTrace 撞车（表现为 access denied）
-            try
+            // 清理残留 ETW 会话：PM 异常退出会泄漏同名会话，残留会导致后续 StartTrace 撞车（表现为 access denied）。
+            // 旧版本/其他工具用默认名 "PresentMon" 的孤儿会话会让 PM 1.10 的消费线程卡死
+            // （实测症状：会话正常建立、事件持续流入、PM 进程 0 CPU 无输出），两个名字都要清
+            foreach (var session in new[] { PmSessionName, "PresentMon" })
             {
-                using var cleanup = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                try
                 {
-                    FileName = "logman.exe",
-                    Arguments = $"stop {PmSessionName} -ets",
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                });
-                cleanup?.WaitForExit(3000);
+                    using var cleanup = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "logman.exe",
+                        Arguments = $"stop {session} -ets",
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                    });
+                    cleanup?.WaitForExit(3000);
+                }
+                catch { }
             }
-            catch { }
             var psi = new ProcessStartInfo
             {
                 FileName = exe,
                 // 不传 -timed（其含义是 N 秒后停止采集，传 0 会秒退）；
-                // -qpc 在 1.10.0 已改名 -qpc_time 且非必需，stdout 自带毫秒列
+                // -qpc 在 1.10.0 已改名 -qpc_time 且非必需，stdout 自带毫秒列；
+                // -stop_existing_session：PM 1.10 遇同名残留会话时接管而非失败
                 Arguments = useCapAll
-                    ? $"-captureall -session_name {PmSessionName} -output_stdout"
-                    : $"-process_id {pid} -session_name {PmSessionName} -output_stdout",
+                    ? $"-captureall -session_name {PmSessionName} -stop_existing_session -output_stdout"
+                    : $"-process_id {pid} -session_name {PmSessionName} -stop_existing_session -output_stdout",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -447,9 +521,14 @@ public sealed class MonitorEngine : IDisposable
 
             var pm = new Process { StartInfo = psi, EnableRaisingEvents = true };
             pm.OutputDataReceived += OnPmOutput;
+            _pmLastStderr = "";
             pm.ErrorDataReceived += (_, args) =>
             {
-                if (!string.IsNullOrWhiteSpace(args.Data)) Log("PM stderr: " + args.Data);
+                if (!string.IsNullOrWhiteSpace(args.Data))
+                {
+                    _pmLastStderr = args.Data.Trim();
+                    Log("PM stderr: " + args.Data);
+                }
             };
             if (!pm.Start()) { pm.Dispose(); Log($"PresentMon 启动失败（PID {pid}）"); return; }
             Log($"PresentMon 已启动（PID {pid}，行数将实时写入 pm_raw.csv）");
@@ -493,9 +572,23 @@ public sealed class MonitorEngine : IDisposable
             _colMsBetweenPresents = -1;
             _colProcessId = -1;
             _captureAll = useCapAll;
+            _pmWatchLines = 0;
+            _pmSilentTicks = 0;
             UpdateSnap(s => s.PresentMonRunning = true);
         }
         catch (Exception ex) { Log("PresentMon 异常: " + ex.Message); }
+    }
+
+    /// <summary>PM 退出后的状态文案：区分"会话被拒"（反作弊拦截 ETW）与普通退出，供运行状态展示。</summary>
+    private string PmExitText()
+    {
+        if (_pm is not { HasExited: true }) return "";
+        var err = _pmLastStderr;
+        if (err.Length == 0) return "PM已退出";
+        if (err.Contains("access denied", StringComparison.OrdinalIgnoreCase) ||
+            err.Contains("failed to start trace session", StringComparison.OrdinalIgnoreCase))
+            return "PM被拒";
+        return err.Length > 80 ? err[..80] : err;
     }
 
     private void StopPresentMon(bool keepPrefetch = false)
@@ -514,12 +607,14 @@ public sealed class MonitorEngine : IDisposable
             _pm = null;
             _pmTargetPid = 0;
             Interlocked.Increment(ref _pmGeneration);   // 使旧实例的延迟重启链失效
-            if (pm == null) { UpdateSnap(s => s.PresentMonRunning = false); return; }
-            try { pm.OutputDataReceived -= OnPmOutput; } catch { }
-            try { if (!pm.HasExited) pm.Kill(entireProcessTree: true); } catch { }
-            pm.Dispose();
-            Log($"PresentMon 已停止（总行数 {_pmLineCount}，有效帧 {_pmFrameCount}）");
-            try { lock (_fileLogLock) { _pmRawLog?.Dispose(); _pmRawLog = null; } } catch { }
+            if (pm != null)
+            {
+                try { pm.OutputDataReceived -= OnPmOutput; } catch { }
+                try { if (!pm.HasExited) pm.Kill(entireProcessTree: true); } catch { }
+                pm.Dispose();
+                Log($"PresentMon 已停止（总行数 {_pmLineCount}，有效帧 {_pmFrameCount}）");
+                try { lock (_fileLogLock) { _pmRawLog?.Dispose(); _pmRawLog = null; } } catch { }
+            }
             UpdateSnap(s =>
             {
                 s.PresentMonRunning = false;
@@ -527,6 +622,14 @@ public sealed class MonitorEngine : IDisposable
                 s.Fps = s.AvgFps = s.OnePercentLow = s.PointOnePercentLow = 0;
                 s.ExclusiveFullscreen = false;
             });
+
+            // 解绑时预捕会话已死（如游戏期间被反作弊拒绝）→ 立即重建，否则引擎将永久失去 ETW 会话。
+            // 反作弊驱动若尚未卸载导致被拒，由 PM 退出回调的退避链在无游戏绑定时持续重试，退出游戏几秒后即可成功
+            if (keepPrefetch)
+            {
+                Log("预捕会话已失效，重建预捕会话（游戏退出后反作弊驱动卸载，ETW 可重新建立）");
+                StartPresentMon(0);
+            }
         }
         catch { }
     }

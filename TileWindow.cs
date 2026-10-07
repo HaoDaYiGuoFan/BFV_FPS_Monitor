@@ -77,7 +77,7 @@ public sealed class TileWindow : Window
     public TileWindow(AppSettings settings)
     {
         _settings = settings;
-        Title = "桌面监控磁贴";
+        Title = Localization.T("Tile.Title");
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         AllowsTransparency = true;
@@ -136,7 +136,7 @@ public sealed class TileWindow : Window
             {
                 _txt.Clear(); _bar.Clear(); _spark.Clear();
                 _host = new StackPanel { Orientation = Orientation.Horizontal, Background = Brushes.Transparent };
-                _host.Children.Add(new TextBlock { Text = "磁贴渲染异常: " + ex.Message, Foreground = Gray, FontSize = 12 });
+                _host.Children.Add(new TextBlock { Text = Localization.F("Tile.RenderFail", ex.Message), Foreground = Gray, FontSize = 12 });
                 Content = _host;
                 Width = 420; Height = 40;
             }
@@ -161,9 +161,9 @@ public sealed class TileWindow : Window
     {
         _host!.Children.Add(Chip_("cpu", "CPU", Green));
         _host.Children.Add(Chip_("gpu", "GPU", Blue));
-        _host.Children.Add(Chip_("vram", "显存", Purple, 34));
-        _host.Children.Add(Chip_("ram", "内存", Green, 34));
-        _host.Children.Add(Chip_("net", "网络", Blue, 34));
+        _host.Children.Add(Chip_("vram", Localization.T("Tile.Vram"), Purple, 34));
+        _host.Children.Add(Chip_("ram", Localization.T("Tile.Ram"), Green, 34));
+        _host.Children.Add(Chip_("net", Localization.T("Tile.Net"), Blue, 34));
     }
 
     private Border Card_(string key, string title, Brush accent)
@@ -192,10 +192,10 @@ public sealed class TileWindow : Window
     private void BuildCard()
     {
         var grid = new UniformGrid { Columns = 2 };
-        grid.Children.Add(Card_("cpu", "CPU 处理器", Green));
-        grid.Children.Add(Card_("gpu", "GPU 显卡", Blue));
-        grid.Children.Add(Card_("mem", "内存 / 显存", Purple));
-        grid.Children.Add(Card_("net", "网络速率", Orange));
+        grid.Children.Add(Card_("cpu", Localization.T("Tile.Cpu"), Green));
+        grid.Children.Add(Card_("gpu", Localization.T("Tile.Gpu"), Blue));
+        grid.Children.Add(Card_("mem", Localization.T("Tile.MemVram"), Purple));
+        grid.Children.Add(Card_("net", Localization.T("Tile.NetRate"), Orange));
         _host!.Children.Add(grid);
     }
 
@@ -210,7 +210,7 @@ public sealed class TileWindow : Window
 
         dock.Children.Add(MiniBar("cpu", "CPU", Green));
         dock.Children.Add(MiniBar("gpu", "GPU", Blue));
-        dock.Children.Add(MiniBar("ram", "内存", Purple));
+        dock.Children.Add(MiniBar("ram", Localization.T("Tile.Ram"), Purple));
 
         b.Child = dock;
         _host!.Children.Add(b);
@@ -254,8 +254,8 @@ public sealed class TileWindow : Window
         sp.Children.Add(GamePPValueRow("gpu.load", "gpu.temp", Blue, Orange));
 
         // 内存 / 显存
-        sp.Children.Add(GamePPBar("内存", "ram", "ram", Green));
-        sp.Children.Add(GamePPBar("显 存", "vram", "vrambar", Blue));
+        sp.Children.Add(GamePPBar(Localization.T("Tile.RamPP"), "ram", "ram", Green));
+        sp.Children.Add(GamePPBar(Localization.T("Tile.VramPP"), "vram", "vrambar", Blue));
 
         // 网络
         sp.Children.Add(GamePPNetRow());
@@ -267,7 +267,7 @@ public sealed class TileWindow : Window
     private UIElement GamePPHeader()
     {
         var b = new Border { BorderBrush = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF)), BorderThickness = new Thickness(0, 0, 0, 1), Margin = new Thickness(0, 0, 0, 10), Padding = new Thickness(0, 0, 0, 8) };
-        b.Child = new TextBlock { Text = "Game Monitor 桌面监控", Foreground = Ink, FontSize = 13, FontWeight = FontWeights.Bold };
+        b.Child = new TextBlock { Text = Localization.T("Tile.GamePPHeader"), Foreground = Ink, FontSize = 13, FontWeight = FontWeights.Bold };
         return b;
     }
 
@@ -333,7 +333,7 @@ public sealed class TileWindow : Window
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(56) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        row.Children.Add(new TextBlock { Text = "网 络", Foreground = Ink, FontSize = 13, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
+        row.Children.Add(new TextBlock { Text = Localization.T("Tile.NetS"), Foreground = Ink, FontSize = 13, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
         var down = new TextBlock { Text = "↓ --", Foreground = Green, FontSize = 11.5, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 12, 0) };
         var up = new TextBlock { Text = "↑ --", Foreground = Blue, FontSize = 11.5, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right };
         _txt["net.down"] = down;
@@ -374,7 +374,7 @@ public sealed class TileWindow : Window
         sp.Children.Add(new TextBlock { Text = "  ", FontSize = 11 });
         mk("gpu", "GPU", Blue);
         sp.Children.Add(new TextBlock { Text = "  ", FontSize = 11 });
-        mk("ram", "内存", Purple);
+        mk("ram", Localization.T("Tile.Ram"), Purple);
         b.Child = sp;
         _host!.Children.Add(b);
         Width = 250; Height = 30;
@@ -404,10 +404,10 @@ public sealed class TileWindow : Window
         // 卡片
         if (_txt.TryGetValue("cpu.sub", out var cs)) cs.Text = $"{Ghz(s.CpuMaxClock)} · {W_(s.CpuPower)}";
         if (_txt.TryGetValue("gpu.sub", out var gs)) gs.Text = $"{Ghz(s.GpuCoreClock)} · {W_(s.GpuPower)}";
-        if (_txt.TryGetValue("mem.sub", out var ms)) ms.Text = double.IsNaN(s.RamUsedGb) ? "--" : $"内存 {s.RamUsedGb:F1}/{(double.IsNaN(s.RamTotalGb) ? 0 : s.RamTotalGb):F0}GB";
-        if (_txt.TryGetValue("mem.sub2", out var ms2)) ms2.Text = double.IsNaN(s.GpuMemUsed) ? "显存 --" : $"显存 {s.GpuMemUsed:F0}/{(double.IsNaN(s.GpuMemTotal) ? 0 : s.GpuMemTotal):F0}MB";
+        if (_txt.TryGetValue("mem.sub", out var ms)) ms.Text = double.IsNaN(s.RamUsedGb) ? "--" : Localization.F("Tile.MemSub", s.RamUsedGb.ToString("F1", CultureInfo.InvariantCulture), (double.IsNaN(s.RamTotalGb) ? 0 : s.RamTotalGb).ToString("F0", CultureInfo.InvariantCulture));
+        if (_txt.TryGetValue("mem.sub2", out var ms2)) ms2.Text = double.IsNaN(s.GpuMemUsed) ? Localization.T("Tile.Vram") + " --" : Localization.F("Tile.VramSub", s.GpuMemUsed.ToString("F0", CultureInfo.InvariantCulture), (double.IsNaN(s.GpuMemTotal) ? 0 : s.GpuMemTotal).ToString("F0", CultureInfo.InvariantCulture));
         if (_txt.TryGetValue("net.sub", out var ns)) ns.Text = $"↓ {Rate(s.DownKbps)}   ↑ {Rate(s.UpKbps)}";
-        if (_txt.TryGetValue("net.sub2", out var ns2)) ns2.Text = "全部网卡 IPv4 · 1s 采样";
+        if (_txt.TryGetValue("net.sub2", out var ns2)) ns2.Text = Localization.T("Tile.NetSub");
 
         if (_bar.TryGetValue("cpu", out var cb)) cb.Value = double.IsNaN(s.CpuLoad) ? 0 : Math.Clamp(s.CpuLoad, 0, 100);
         if (_bar.TryGetValue("gpu", out var gb)) gb.Value = double.IsNaN(s.GpuLoad) ? 0 : Math.Clamp(s.GpuLoad, 0, 100);
@@ -539,5 +539,16 @@ public sealed class TileWindow : Window
     {
         ShowInTaskbar = _settings.TileShowInTaskbar;
         Rebuild();
+    }
+
+    /// <summary>语言切换后整体重建（C# 构造的标签需重新取词）。</summary>
+    public void ApplyLanguage()
+    {
+        try
+        {
+            Title = Localization.T("Tile.Title");
+            Rebuild();
+        }
+        catch { }
     }
 }

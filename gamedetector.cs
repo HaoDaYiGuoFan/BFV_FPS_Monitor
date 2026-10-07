@@ -43,6 +43,8 @@ public static class GameDetector
         "svchost", "csrss", "services", "lsass", "wininit", "spoolsv", "taskhostw", "ctfmon",
         "SearchIndexer", "SecurityHealthService", "MsMpEng", "Everything", "Listary",
         "AutoClaw", "node", "dotnet", "lhm_probe", "mcporter",
+        // 截图 / 贴图工具：贴图窗口无边框且常覆盖全屏，全屏启发式必误判为游戏
+        "Snipaste", "PixPin", "ShareX", "Greenshot", "PicPick", "FSCapture",
     };
 
     /// <summary>
